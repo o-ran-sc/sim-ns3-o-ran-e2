@@ -50,6 +50,29 @@
       "message": "recheck",
       "revId": "c2b84830829572c7426710b908d31700aeee87d6",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "650884dd_865bffa5",
+        "filename": "INFO.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000079
+      },
+      "writtenOn": "2022-05-24T19:25:53Z",
+      "side": 1,
+      "message": "There\u0027s a git merge conflict here that needs to be resolved.",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 41
+      },
+      "revId": "c2b84830829572c7426710b908d31700aeee87d6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
