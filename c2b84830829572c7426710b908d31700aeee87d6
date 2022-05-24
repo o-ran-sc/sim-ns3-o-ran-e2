@@ -16,6 +16,23 @@
       "message": "As stated in our different thread, I am unable to merge this myself, it seems that the repo does not have the correct committers. Added you, Eric, FYI.",
       "revId": "c2b84830829572c7426710b908d31700aeee87d6",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ebf19ae_2334ac19",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000079
+      },
+      "writtenOn": "2022-05-24T18:23:57Z",
+      "side": 1,
+      "message": "Please try logging out of gerrit and back in. It looks like your group membership hasn\u0027t updated yet.",
+      "revId": "c2b84830829572c7426710b908d31700aeee87d6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
