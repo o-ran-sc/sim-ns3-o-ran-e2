@@ -1,0 +1,54 @@
+---
+project: 'sim/ns3-o-ran-e2'
+project_creation_date: '2022-05-12'
+project_category: ''
+lifecycle_state: 'Incubation'
+project_lead: &sim_ptl
+    name: 'Alex Stancu'
+    email: 'alexandru.stancu@highstreet-technologies.com'
+    id: 'alex.stancu'
+    company: 'highstreet technologies GmbH'
+    timezone: 'Europe/Bucharest'
+primary_contact: *sim_ptl
+issue_tracking:
+    type: 'jira'
+    url: 'https://jira.o-ran-sc.org/projects/SIM'
+    key: 'SIM'
+mailing_list:
+    type: 'groups.io'
+    url: 'https://lists.o-ran-sc.org/g/main'
+    tag: '<[sim]>'
+realtime_discussion:
+    type: 'irc'
+    server: 'freenode.net'
+    channel: '#o-ran-sc'
+meetings:
+    - type: 'zoom'
+      agenda: ''
+      url: ''
+      server: 'n/a'
+      channel: 'n/a'
+      repeats: 'weekly'
+      time: ''
+repositories:
+    - 'sim/ns3-o-ran-e2'
+committers:
+    - <<: *sim_ptl
+    - name: 'Michele Polese'
+      email: 'michele.polese@gmail.com'
+      company: 'Northeastern University, Boston MA'
+      id: 'mychele'
+      timezone: 'America/New_York'
+    - name: 'Andrea Lacava'
+      email: 'lacava.a@northeastern.edu'
+      company: 'Northeastern University, Boston MA'
+      id: 'thecave3'
+      timezone: 'America/New_York'
+    - name: 'Tommaso Zugno'
+      email: 'tommasozugno@gmail.com'
+      company: 'University of Padova'
+      id: 'tommasozugno'
+      timezone: 'Europe/Rome'
+tsc:
+    approval: "https://wiki.o-ran-sc.org/display/TOC#ORANSCTechnical\
+                OversightCommittee(TOC)-20220427"
