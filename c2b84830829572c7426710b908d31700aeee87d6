@@ -73,6 +73,30 @@
       },
       "revId": "c2b84830829572c7426710b908d31700aeee87d6",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbdf3c6e_671cf782",
+        "filename": "INFO.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000124
+      },
+      "writtenOn": "2022-05-25T08:54:59Z",
+      "side": 1,
+      "message": "Thank you, I did not see that before sending the patch.",
+      "parentUuid": "650884dd_865bffa5",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 41
+      },
+      "revId": "c2b84830829572c7426710b908d31700aeee87d6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
