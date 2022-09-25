@@ -1,0 +1,20 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+def build(bld):    
+    obj = bld.create_ns3_program('e2sim-integration-example', ['oran-interface'])
+    obj.source = 'e2sim-integration-example.cc'
+
+    obj = bld.create_ns3_program('oran-interface-example', ['oran-interface'])
+    obj.source = 'oran-interface-example.cc'
+    
+    obj = bld.create_ns3_program('ric-indication-messages', ['oran-interface'])
+    obj.source = 'ric-indication-messages.cc'
+        
+    obj = bld.create_ns3_program('ric-control-function-desc', ['oran-interface'])
+    obj.source = 'ric-control-function-desc.cc'
+
+    obj = bld.create_ns3_program('l3-rrc-example', ['oran-interface'])
+    obj.source = 'l3-rrc-example.cc'
+
+    obj = bld.create_ns3_program('test-wrappers', ['oran-interface'])
+    obj.source = 'test-wrappers.cc'
