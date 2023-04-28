@@ -373,14 +373,14 @@ KpmIndicationMessage::FillODuContainer (PF_Container_t *ranContainer,
                   (PerQCIReportListItem_t *) calloc (1, sizeof (PerQCIReportListItem_t));
               pqrl->qci = perQciReportItem->m_qci;
               
-              NS_ABORT_MSG_IF ((perQciReportItem->m_dlPrbUsage < 0) | (perQciReportItem->m_dlPrbUsage > 100), 
+              NS_ABORT_MSG_IF ((perQciReportItem->m_dlPrbUsage < 0) || (perQciReportItem->m_dlPrbUsage > 100),
                               "As per ASN definition, dl_PRBUsage should be between 0 and 100");
               long *dlUsedPrbs = (long *) calloc (1, sizeof (long));
               *dlUsedPrbs = perQciReportItem->m_dlPrbUsage;
               pqrl->dl_PRBUsage = dlUsedPrbs;
               NS_LOG_LOGIC ("DL PRBs " << dlUsedPrbs);
               
-              NS_ABORT_MSG_IF ((perQciReportItem->m_ulPrbUsage < 0) | (perQciReportItem->m_ulPrbUsage > 100), 
+              NS_ABORT_MSG_IF ((perQciReportItem->m_ulPrbUsage < 0) || (perQciReportItem->m_ulPrbUsage > 100),
                               "As per ASN definition, ul_PRBUsage should be between 0 and 100");
               long *ulUsedPrbs = (long *) calloc (1, sizeof (long));
               *ulUsedPrbs = perQciReportItem->m_ulPrbUsage;
