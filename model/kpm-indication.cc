@@ -51,6 +51,13 @@ extern "C" {
 #include "ServedPlmnPerCellListItem.h"
 #include "EPC-DU-PM-Container.h"
 #include "PerQCIReportListItem.h"
+//==============================================================
+#include"MeasurementRecordItem.h"
+#include "MeasurementDataItem.h"
+#include"MeasurementLabel.h"
+#include "E2SM-KPM-IndicationMessage-Format3.h"
+#include"UEMeasurementReportItem.h"
+
 }
 
 namespace ns3 {
@@ -81,6 +88,7 @@ KpmIndicationHeader::Encode (E2SM_KPM_IndicationHeader_t *descriptor)
 
   if (encodedHeader.result.encoded < 0)
     {
+      printf("I am Hereeeeeeeeeeeeeeeeeeeeeeee KpmIndicationHeader");
       NS_FATAL_ERROR ("Error during the encoding of the RIC Indication Header, errno: "
                       << strerror (errno) << ", failed_type "
                       << encodedHeader.result.failed_type->name << ", structure_ptr "
@@ -98,7 +106,7 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
 
   E2SM_KPM_IndicationHeader_Format1_t *ind_header = (E2SM_KPM_IndicationHeader_Format1_t *) calloc (
       1, sizeof (E2SM_KPM_IndicationHeader_Format1_t));
-
+  
   Ptr<OctetString> plmnid = Create<OctetString> (values.m_plmId, 3);
   Ptr<BitString> cellId_bstring;
 
@@ -132,7 +140,7 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
         ind_header->id_GlobalE2node_ID.present = GlobalE2node_ID_PR_eNB;
         GlobalE2node_eNB_ID_t *globalE2node_eNB_ID =
             (GlobalE2node_eNB_ID_t *) calloc (1, sizeof (GlobalE2node_eNB_ID_t));
-        globalE2node_eNB_ID->global_eNB_ID.pLMN_Identity = plmnid->GetValue ();
+        globalE2node_eNB_ID->global_eNB_ID.pLMNIdentity = plmnid->GetValue ();
         globalE2node_eNB_ID->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
         globalE2node_eNB_ID->global_eNB_ID.eNB_ID.choice.macro_eNB_ID = cellId_bstring->GetValue ();
         ind_header->id_GlobalE2node_ID.choice.eNB = globalE2node_eNB_ID;
@@ -145,8 +153,8 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
         static int unsedSizeEnb = 4;
 
         cellId_bstring = Create<BitString> (values.m_gnbId, sizeEnb, unsedSizeEnb);
-
         ind_header->id_GlobalE2node_ID.present = GlobalE2node_ID_PR_ng_eNB;
+
         GlobalE2node_ng_eNB_ID_t *globalE2node_ng_eNB_ID =
             (GlobalE2node_ng_eNB_ID_t *) calloc (1, sizeof (GlobalE2node_ng_eNB_ID_t));
 
@@ -155,6 +163,7 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
         globalE2node_ng_eNB_ID->global_ng_eNB_ID.enb_id.choice.enb_ID_macro =
             cellId_bstring->GetValue ();
         ind_header->id_GlobalE2node_ID.choice.ng_eNB = globalE2node_ng_eNB_ID;
+
       }
       break;
 
@@ -162,12 +171,12 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
         static int sizeGnb = 4; // 3GPP Specs
         cellId_bstring = Create<BitString> (values.m_gnbId, sizeGnb);
 
-        ind_header->id_GlobalE2node_ID.present = GlobalE2node_ID_PR_en_gNB;
+       ind_header->id_GlobalE2node_ID.present = GlobalE2node_ID_PR_en_gNB;
         GlobalE2node_en_gNB_ID_t *globalE2node_en_gNB_ID =
             (GlobalE2node_en_gNB_ID_t *) calloc (1, sizeof (GlobalE2node_en_gNB_ID_t));
         globalE2node_en_gNB_ID->global_gNB_ID.pLMN_Identity = plmnid->GetValue ();
-        globalE2node_en_gNB_ID->global_gNB_ID.gNB_ID.present = ENGNB_ID_PR_gNB_ID;
-        globalE2node_en_gNB_ID->global_gNB_ID.gNB_ID.choice.gNB_ID = cellId_bstring->GetValue ();
+        globalE2node_en_gNB_ID->global_gNB_ID.en_gNB_ID.present = EN_GNB_ID_PR_en_gNB_ID;
+        globalE2node_en_gNB_ID->global_gNB_ID.en_gNB_ID.choice.en_gNB_ID = cellId_bstring->GetValue ();
         ind_header->id_GlobalE2node_ID.choice.en_gNB = globalE2node_en_gNB_ID;
       }
       break;
@@ -188,13 +197,13 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
     // Ptr<OctetString> ts2 = Create<OctetString> ((void *) &values.m_timestamp, TIMESTAMP_LIMIT_SIZE);
     // NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_OCTET_STRING, ts2->GetPointer()));
 
-    ind_header->collectionStartTime = ts->GetValue ();
+    ind_header->colletStartTime = ts->GetValue ();
 
 
     NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_E2SM_KPM_IndicationHeader_Format1, ind_header));
 
-    descriptor->present = E2SM_KPM_IndicationHeader_PR_indicationHeader_Format1;
-    descriptor->choice.indicationHeader_Format1 = ind_header;
+    descriptor->indicationHeader_formats.present = E2SM_KPM_IndicationHeader__indicationHeader_formats_PR_indicationHeader_Format1;
+    descriptor->indicationHeader_formats.choice.indicationHeader_Format1 = ind_header;
 
     Encode (descriptor);
     ASN_STRUCT_FREE (asn_DEF_E2SM_KPM_IndicationHeader_Format1, ind_header);
@@ -244,6 +253,8 @@ KpmIndicationMessage::Encode (E2SM_KPM_IndicationMessage_t *descriptor)
 
   if (encodedMsg.result.encoded < 0)
     {
+     printf("I am Hereeeeeeeeeeeeeeeeeeeeeeee KpmIndication \n");
+
       NS_FATAL_ERROR ("Error during the encoding of the RIC Indication Message, errno: "
                       << strerror (errno) << ", failed_type " << encodedMsg.result.failed_type->name
                       << ", structure_ptr " << encodedMsg.result.structure_ptr);
@@ -400,6 +411,163 @@ void
 KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMessage_t *descriptor,
                                                          KpmIndicationMessageValues values)
 {
+  
+ // MOCK for buiding KPM Indication messages
+ 
+printf("I'm in FillAndEncodeKpmIndicationMessage 1 \n ") ; 
+
+ E2SM_KPM_IndicationMessage_t    * ind_message = (E2SM_KPM_IndicationMessage_t *) calloc (
+      1, sizeof (E2SM_KPM_IndicationMessage_t));
+printf("I'm in FillAndEncodeKpmIndicationMessage 2 \n ") ; 
+
+   E2SM_KPM_IndicationMessage_Format1_t * test_kpm_ind_message = (E2SM_KPM_IndicationMessage_Format1_t *) calloc (
+      1, sizeof (E2SM_KPM_IndicationMessage_Format1_t));
+printf("I'm in FillAndEncodeKpmIndicationMessage 3 \n ") ; 
+
+
+   MeasurementRecord_t * measure_record = (MeasurementRecord_t *) calloc (
+      1, sizeof (MeasurementRecord_t));
+
+MeasurementRecordItem_t *measure_record_item =   (  MeasurementRecordItem_t*) calloc (1, sizeof (MeasurementRecordItem_t));
+measure_record_item->present = MeasurementRecordItem_PR_integer ; 
+measure_record_item->choice.integer = 1 ; 
+printf("I'm in FillAndEncodeKpmIndicationMessage 4 \n ") ; 
+
+
+ASN_SEQUENCE_ADD(& measure_record->list, measure_record_item) ; 
+
+printf("I'm in FillAndEncodeKpmIndicationMessage 5 \n ") ; 
+
+
+MeasurementDataItem_t * measure_data_item = (  MeasurementDataItem_t*) calloc (1, sizeof (MeasurementDataItem_t));
+printf("I'm in FillAndEncodeKpmIndicationMessage 6 \n ") ; 
+
+measure_data_item->measRecord = *measure_record;
+printf("I'm in FillAndEncodeKpmIndicationMessage 7 \n ") ; 
+
+
+MeasurementData_t *measurement_data =   (  MeasurementData_t*) calloc (1, sizeof (MeasurementData_t));
+printf("I'm in FillAndEncodeKpmIndicationMessage 8 \n ") ; 
+
+ASN_SEQUENCE_ADD(&measurement_data->list, measure_data_item) ; 
+printf("I'm in FillAndEncodeKpmIndicationMessage 9 \n ") ; 
+
+test_kpm_ind_message->measData =*measurement_data ; 
+printf("I'm in FillAndEncodeKpmIndicationMessage 10 \n ") ; 
+
+ind_message->indicationMessage_formats.present=E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format1 ; 
+printf("I'm in FillAndEncodeKpmIndicationMessage 11 \n ") ; 
+
+ind_message->indicationMessage_formats.choice.indicationMessage_Format1= test_kpm_ind_message ; 
+
+
+printf("I'm in FillAndEncodeKpmIndicationMessage 12 \n ") ; 
+// ASN_SEQUENCE_ADD(&ind_message->indicationMessage_formats.choice.indicationMessage_Format1, test_kpm_ind_message) ; 
+
+printf("I'm in FillAndEncodeKpmIndicationMessage 13 \n ") ; 
+
+
+// MeasurementInfoItem_t *measinfoitem = (  MeasurementInfoItem_t*) calloc (1, sizeof (MeasurementInfoItem_t));
+// MeasurementInfoList *measinfo = (  MeasurementInfoList*) calloc (1, sizeof (MeasurementInfoList));
+// ASN_SEQUENCE_ADD(& measinfo->list, measinfoitem) ; 
+// test_kpm_ind_message->measInfoList =measinfo ; 
+
+
+
+
+
+  Encode (ind_message);
+
+
+
+/*
+
+  //=======================================================================
+  E2SM_KPM_IndicationMessage_t *pdu = (E2SM_KPM_IndicationMessage_t *)calloc(1, sizeof(E2SM_KPM_IndicationMessage_t));
+  assert( pdu !=NULL && "Memory exhausted" );
+  kpm_ind_msg_t msg = fill_kpm_ind_msg();
+  
+  
+  switch (msg->type)
+  {
+  case FORMAT_1_INDICATION_MESSAGE:
+    pdu->indicationMessage_formats.present = E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format1;
+    pdu->indicationMessage_formats.choice.indicationMessage_Format1 = calloc(1, sizeof(E2SM_KPM_IndicationMessage_Format1_t));
+    assert(pdu->indicationMessage_formats.choice.indicationMessage_Format1 != NULL && "Memory exhausted");
+    *pdu->indicationMessage_formats.choice.indicationMessage_Format1 = kpm_enc_ind_msg_frm_1_asn(&ind_msg->frm_1);
+    break;
+  
+  case FORMAT_2_INDICATION_MESSAGE:
+    pdu->indicationMessage_formats.present = E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format2;
+    pdu->indicationMessage_formats.choice.indicationMessage_Format2 = kpm_enc_ind_msg_frm_2_asn(&ind_msg->frm_2);
+    break;
+
+  case FORMAT_3_INDICATION_MESSAGE:
+    pdu->indicationMessage_formats.present = E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format3;
+    pdu->indicationMessage_formats.choice.indicationMessage_Format3 = kpm_enc_ind_msg_frm_3_asn(&ind_msg->frm_3);
+    break;
+
+  default:
+    assert(false && "Non valid KPM RIC Indication Message Format");
+  }
+
+
+//  xer_fprint(stderr, &asn_DEF_E2SM_KPM_IndicationMessage, pdu);
+//  fflush(stdout);
+
+  byte_array_t  ba = {.buf = malloc(2048), .len = 2048};
+  const enum asn_transfer_syntax syntax = ATS_ALIGNED_BASIC_PER;
+  asn_enc_rval_t er = asn_encode_to_buffer(NULL, syntax, &asn_DEF_E2SM_KPM_IndicationMessage, pdu, ba.buf, ba.len);
+  assert(er.encoded > -1 && (size_t)er.encoded <= ba.len);
+  ba.len = er.encoded;
+
+
+  ASN_STRUCT_FREE(asn_DEF_E2SM_KPM_IndicationMessage, pdu);
+
+  return ba;
+
+
+  Encode (pdu);
+*/
+  //=======================================================================
+
+
+
+
+
+
+
+
+/*
+test_kpm_ind_message[0].measData.list.array[0]->measRecord.list.count = 1 ; 
+printf("I'm in FillAndEncodeKpmIndicationMessage 5 \n ") ; 
+
+test_kpm_ind_message[0].measData.list.array[0]->measRecord.list.size = 10 ; 
+printf("I'm in FillAndEncodeKpmIndicationMessage 6 \n ") ; 
+
+test_kpm_ind_message[0].measData.list.array[0]->measRecord.list.array[0][0] = *measure_record_item ;
+printf("I'm in FillAndEncodeKpmIndicationMessage 7 \n ") ; 
+
+ind_message->indicationMessage_formats.present=E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format1 ; 
+ind_message->indicationMessage_formats.choice.indicationMessage_Format1= test_kpm_ind_message ; 
+
+  ASN_SEQUENCE_ADD (&test_kpm_ind_message->measInfoList->list.array,test_kpm_ind_message );
+printf("I'm in FillAndEncodeKpmIndicationMessage 8 \n ") ; 
+
+  
+
+  Encode (ind_message);
+printf("I'm in FillAndEncodeKpmIndicationMessage 9 \n ") ; 
+
+  ASN_STRUCT_FREE (asn_DEF_E2SM_KPM_IndicationMessage_Format1, test_kpm_ind_message);
+printf("I'm in FillAndEncodeKpmIndicationMessage 10 \n ") ; 
+
+printf ("Hello Mina, I encoded the RIC indication message \n") ; 
+*/
+/*
+ // ==============================================================================
+
+ 
   // Create and fill the RAN Container
   PF_Container_t *ranContainer = (PF_Container_t *) calloc (1, sizeof (PF_Container_t));
   FillPmContainer (ranContainer, values.m_pmContainerValues);
@@ -412,7 +580,7 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
   E2SM_KPM_IndicationMessage_Format1_t *format = (E2SM_KPM_IndicationMessage_Format1_t *) calloc (
       1, sizeof (E2SM_KPM_IndicationMessage_Format1_t));
 
-  ASN_SEQUENCE_ADD (&format->pm_Containers.list, containers_list);
+  ASN_SEQUENCE_ADD (&format->measInfoList->list.array, containers_list);
 
   // Cell Object ID
   CellObjectID_t *cellObjectID = (CellObjectID_t *) calloc (1, sizeof (CellObjectID_t));
@@ -420,25 +588,24 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
   cellObjectID->buf = (uint8_t *) calloc (1, cellObjectID->size);
   memcpy (cellObjectID->buf, values.m_cellObjectId.c_str (), values.m_cellObjectId.length ());
   format->cellObjectID = *cellObjectID;
-  
   // Measurement Information List
   if (values.m_cellMeasurementItems)
   {
-      format->list_of_PM_Information = (E2SM_KPM_IndicationMessage_Format1::
-                                        E2SM_KPM_IndicationMessage_Format1__list_of_PM_Information *) 
-                                        calloc (1, sizeof (E2SM_KPM_IndicationMessage_Format1::
-                                        E2SM_KPM_IndicationMessage_Format1__list_of_PM_Information));
+     
+    //format->measData.list = (MeasurementData) calloc (1, sizeof (MeasurementData));
     for (auto item : values.m_cellMeasurementItems->GetItems ())
-    {
-      ASN_SEQUENCE_ADD (&format->list_of_PM_Information->list, item->GetPointer ());
+    { 
+      ASN_SEQUENCE_ADD (&format->measData, item->GetPointer ());
     }
   }
   
   // List of matched UEs
+
+  
   if (values.m_ueIndications.size () > 0)
   {
-    format->list_of_matched_UEs = (E2SM_KPM_IndicationMessage_Format1_t::E2SM_KPM_IndicationMessage_Format1__list_of_matched_UEs*) 
-                                   calloc (1, sizeof (E2SM_KPM_IndicationMessage_Format1_t::E2SM_KPM_IndicationMessage_Format1__list_of_matched_UEs));
+    //format->measInfoList->list = (E2SM_KPM_IndicationMessage_Format1_t::measInfoList*) 
+    //                               calloc (1, sizeof (E2SM_KPM_IndicationMessage_Format1_t::E2SM_KPM_IndicationMessage_Format1__list_of_matched_UEs));
 
 
     for (auto ueIndication : values.m_ueIndications)
@@ -460,13 +627,12 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
           ASN_SEQUENCE_ADD (&perUEItem->list_of_PM_Information->list,
             measurementItem->GetPointer ());
         }
-        ASN_SEQUENCE_ADD (&format->list_of_matched_UEs->list, perUEItem);
+        ASN_SEQUENCE_ADD (&format->measInfoList->list, perUEItem);
       }
   }
 
-  descriptor->present = E2SM_KPM_IndicationMessage_PR_indicationMessage_Format1;
-  descriptor->choice.indicationMessage_Format1 = format;
-  
+  descriptor->indicationMessage_formats.present = E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format1;
+  descriptor->indicationMessage_formats.choice.indicationMessage_Format1 = format;
   
   NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_E2SM_KPM_IndicationMessage_Format1, format));
 
@@ -474,9 +640,12 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
   Encode (descriptor);
 
   free (cellObjectID);
-  // free (ranContainer);
+  // free (ranContainer);descriptor
   ASN_STRUCT_FREE (asn_DEF_E2SM_KPM_IndicationMessage_Format1, format);
+  */
+
 }
+
 
 MeasurementItemList::MeasurementItemList ()
 {
