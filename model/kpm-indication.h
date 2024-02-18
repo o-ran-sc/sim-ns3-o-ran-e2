@@ -39,6 +39,8 @@ extern "C" {
   #include "ODU-PF-Container.h"
   #include "PF-ContainerListItem.h"
   #include "asn1c-types.h"
+//===================================
+
 }
 
 namespace ns3 {
@@ -236,6 +238,64 @@ namespace ns3 {
     
     void* m_buffer;
     size_t m_size;
+// ======================================================================================
+    BIT_STRING_t cp_amf_region_id_to_bit_string(uint8_t src)
+    {
+      assert(src < 64);    
+  
+      BIT_STRING_t dst = {.buf=(uint8_t*)malloc(1), .size = 1,.bits_unused = 0,}; 
+      assert(dst.buf != NULL);
+  
+      memcpy(dst.buf, &src, 1);    
+  
+  return dst;
+   }
+
+
+
+BIT_STRING_t cp_amf_set_id_to_bit_string(uint16_t val)
+{
+  assert(val < 1024);
+
+  BIT_STRING_t dst = {0}; 
+  dst.buf = (uint8_t*)calloc(2, sizeof(uint8_t) ); 
+  dst.size = 2;
+  dst.bits_unused = 6; // unused_bit;
+  assert(dst.buf != NULL);
+
+  dst.buf[0] = val; // 0x5555;
+  dst.buf[1] = (val >> 8) << 6; 
+
+  return dst;
+}
+
+
+BIT_STRING_t cp_amf_ptr_to_bit_string(uint8_t src)
+{
+  assert(src < 64);
+
+  uint8_t tmp = src << 2;
+
+  BIT_STRING_t dst = { .buf = (uint8_t*)malloc(1), .size = 1,.bits_unused =2}; 
+  assert(dst.buf != NULL);
+  memcpy(dst.buf, &tmp, 1); 
+
+  return dst;
+}
+
+OCTET_STRING_t cp_plmn_identity_to_octant_string (uint8_t src)
+{
+    OCTET_STRING_t dst = {0} ; 
+    dst.buf = (uint8_t*)calloc(3, sizeof(uint8_t));  
+    dst.buf[0] = src << 4  ; 
+    dst.buf[1] = src << 4 ; 
+    dst.buf[2] = src << 4 ; 
+    dst.size = 3 ;     
+    return dst ;                                              
+}
+
+//==================================================================================
+
     
   private:
     static void CheckConstraints (KpmIndicationMessageValues values);

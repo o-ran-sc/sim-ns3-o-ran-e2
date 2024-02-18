@@ -28,7 +28,7 @@
 #include <ns3/log.h>
 #include <thread>
 #include "encode_e2apv1.hpp"
-
+#include<unistd.h>
 extern "C" {
   #include "RICsubscriptionRequest.h"
   #include "RICactionType.h"
@@ -283,6 +283,7 @@ void
 E2Termination::SendE2Message (E2AP_PDU* pdu)
 {
   m_e2sim->encode_and_send_sctp_data (pdu);
+  sleep(1); 
 }
 
 }
