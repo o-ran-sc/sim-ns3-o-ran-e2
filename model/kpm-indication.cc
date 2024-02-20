@@ -275,9 +275,13 @@ KpmIndicationMessage::Encode (E2SM_KPM_IndicationMessage_t *descriptor)
     {
      printf("I am Hereeeeeeeeeeeeeeeeeeeeeeee KpmIndication \n");
 
-      NS_FATAL_ERROR ("Error during the encoding of the RIC Indication Message, errno: "
+      assert(encodedMsg.result.structure_ptr != nullptr);
+
+      NS_FATAL_ERROR("Error during the encoding of the RIC Indication Message, errno: "
                       << strerror (errno) << ", failed_type " << encodedMsg.result.failed_type->name
                       << ", structure_ptr " << encodedMsg.result.structure_ptr);
+
+      printf("Error during encoding ");
     }
 
   m_buffer = encodedMsg.buffer;
@@ -431,7 +435,11 @@ void
 KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMessage_t *descriptor,
                                                          KpmIndicationMessageValues values)
 {
-  /*
+
+const bool DISABLE_FORMAT_ONE = false;
+
+if(DISABLE_FORMAT_ONE) {
+  // Format 1 
  // MOCK for buiding KPM Indication messages
  
 printf("I'm in FillAndEncodeKpmIndicationMessage 1 \n ") ; 
@@ -487,29 +495,25 @@ printf("I'm in FillAndEncodeKpmIndicationMessage 12 \n ") ;
 printf("I'm in FillAndEncodeKpmIndicationMessage 13 \n ") ; 
 
   Encode (ind_message);
-
- */
-
+} else{
 
 // Mustafa
+// Format 3 Section ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Format 3 sections, 
+// consists of format 1 plus some additional args like (UE_ID, and Measurements report) and these are mandatory args.
 
-// Format 3 ////////////////////////////////////////////////////////////////////////////////////////////////////
-printf("I'm in FillAndEncodeKpmIndicationMessage 11 \n ") ; 
+// Format 1 Part
+E2SM_KPM_IndicationMessage_t * ind_message = (E2SM_KPM_IndicationMessage_t *) calloc (1, sizeof (E2SM_KPM_IndicationMessage_t));
 
-  E2SM_KPM_IndicationMessage_t    * ind_message = (E2SM_KPM_IndicationMessage_t *) calloc (1, sizeof (E2SM_KPM_IndicationMessage_t));
-
-// Format 1 
-
-
- MeasurementRecord_t * measure_record = (MeasurementRecord_t *) calloc ( 1, sizeof (MeasurementRecord_t));
+MeasurementRecord_t * measure_record = (MeasurementRecord_t *) calloc ( 1, sizeof (MeasurementRecord_t));
 
 MeasurementRecordItem_t *measure_record_item =   (  MeasurementRecordItem_t*) calloc (1, sizeof (MeasurementRecordItem_t));
 measure_record_item->present = MeasurementRecordItem_PR_integer ; 
 measure_record_item->choice.integer = 1 ; 
 printf("I'm in FillAndEncodeKpmIndicationMessage 1 \n ") ; 
-
 ASN_SEQUENCE_ADD(& measure_record->list, measure_record_item) ; 
+
 
 printf("I'm in FillAndEncodeKpmIndicationMessage 2 \n ") ; 
 
@@ -527,22 +531,21 @@ printf("I'm in FillAndEncodeKpmIndicationMessage 5 \n ") ;
 ASN_SEQUENCE_ADD(&measurement_data->list, measure_data_item) ; 
 printf("I'm in FillAndEncodeKpmIndicationMessage 6 \n ") ; 
 
-   E2SM_KPM_IndicationMessage_Format1_t * test_kpm_ind_message = (E2SM_KPM_IndicationMessage_Format1_t *) calloc (
-      1, sizeof (E2SM_KPM_IndicationMessage_Format1_t));
 
+E2SM_KPM_IndicationMessage_Format1_t * test_kpm_ind_message = (E2SM_KPM_IndicationMessage_Format1_t *) calloc (
+                                                              1, sizeof (E2SM_KPM_IndicationMessage_Format1_t));
 
 test_kpm_ind_message->measData =*measurement_data ; 
 printf("I'm in FillAndEncodeKpmIndicationMessage 7 \n ") ; 
 
+
 printf("I'm in FillAndEncodeKpmIndicationMessage 8 \n ") ; 
 
-
-
-// Format 3 /////////////////////////////////////////////////////////////////////////
+// Format 3 Part
 
 printf("I'm in FillAndEncodeKpmIndicationMessage 9 \n ") ; 
        
-   E2SM_KPM_IndicationMessage_Format3_t * test_kpm_ind_message_format3 = (E2SM_KPM_IndicationMessage_Format3_t *) calloc (
+E2SM_KPM_IndicationMessage_Format3_t * test_kpm_ind_message_format3 = (E2SM_KPM_IndicationMessage_Format3_t *) calloc (
       1, sizeof (E2SM_KPM_IndicationMessage_Format3_t));
 printf("I'm in FillAndEncodeKpmIndicationMessage 10 \n ") ; 
 
@@ -594,8 +597,7 @@ printf("I'm in FillAndEncodeKpmIndicationMessage 11 \n ") ;
     test_kpm_ind_message_format3->ueMeasReportList = *UE_data_list ; 
 //}
 
-
-
+// Adding format 1 part with format 3 part.
 ind_message->indicationMessage_formats.present=E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format3 ; 
 ind_message->indicationMessage_formats.choice.indicationMessage_Format3= test_kpm_ind_message_format3 ; 
 
@@ -607,9 +609,10 @@ printf("I'm in FillAndEncodeKpmIndicationMessage 16 \n ") ;
 
   Encode (ind_message);
 
+printf("Done encoding ") ; 
 
 
-
+}
 
 
 
