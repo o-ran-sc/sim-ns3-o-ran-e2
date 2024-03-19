@@ -283,10 +283,21 @@ BIT_STRING_t cp_amf_ptr_to_bit_string(uint8_t src)
   return dst;
 }
 
+OCTET_STRING_t cp_plmn_identity_to_octant_string (uint16_t mCC,uint16_t mNC, uint8_t mNCdIGITlENGTH)
+{
+    OCTET_STRING_t dst = {0} ; 
+    dst.buf = (uint8_t*)calloc(3, sizeof(uint8_t)); 
+    dst.buf[0] = ((((mCC) / 10) % 10) << 4) | (mCC/100); 
+    dst.buf[1] = ((mNCdIGITlENGTH == 2 ? 15 : (mNC) / 100) << 4) | (mCC % 10);
+    dst.buf[2] = (((mNC) % 10) << 4) | (((mNC) / 10) % 10);
+    dst.size = 3 ;     
+    return dst ;                                              
+}
+
 OCTET_STRING_t cp_plmn_identity_to_octant_string (uint8_t src)
 {
     OCTET_STRING_t dst = {0} ; 
-    dst.buf = (uint8_t*)calloc(3, sizeof(uint8_t));  
+    dst.buf = (uint8_t*)calloc(3, sizeof(uint8_t));
     dst.buf[0] = src << 4  ; 
     dst.buf[1] = src << 4 ; 
     dst.buf[2] = src << 4 ; 
