@@ -484,16 +484,12 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
       // Format 1
       // MOCK for buiding KPM Indication messages
 
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 1 \n ");
-
       E2SM_KPM_IndicationMessage_t *ind_message =
           (E2SM_KPM_IndicationMessage_t *) calloc (1, sizeof (E2SM_KPM_IndicationMessage_t));
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 2 \n ");
 
       E2SM_KPM_IndicationMessage_Format1_t *test_kpm_ind_message =
           (E2SM_KPM_IndicationMessage_Format1_t *) calloc (
               1, sizeof (E2SM_KPM_IndicationMessage_Format1_t));
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 3 \n ");
 
       MeasurementRecord_t *measure_record =
           (MeasurementRecord_t *) calloc (1, sizeof (MeasurementRecord_t));
@@ -502,40 +498,28 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
           (MeasurementRecordItem_t *) calloc (1, sizeof (MeasurementRecordItem_t));
       measure_record_item->present = MeasurementRecordItem_PR_integer;
       measure_record_item->choice.integer = 1;
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 4 \n ");
 
       ASN_SEQUENCE_ADD (&measure_record->list, measure_record_item);
 
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 5 \n ");
-
       MeasurementDataItem_t *measure_data_item =
           (MeasurementDataItem_t *) calloc (1, sizeof (MeasurementDataItem_t));
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 6 \n ");
 
       measure_data_item->measRecord = *measure_record;
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 7 \n ");
 
       MeasurementData_t *measurement_data =
           (MeasurementData_t *) calloc (1, sizeof (MeasurementData_t));
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 8 \n ");
 
       ASN_SEQUENCE_ADD (&measurement_data->list, measure_data_item);
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 9 \n ");
 
       test_kpm_ind_message->measData = *measurement_data;
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 10 \n ");
 
       ind_message->indicationMessage_formats.present =
           E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format1;
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 11 \n ");
 
       ind_message->indicationMessage_formats.choice.indicationMessage_Format1 =
           test_kpm_ind_message;
 
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 12 \n ");
       // ASN_SEQUENCE_ADD(&ind_message->indicationMessage_formats.choice.indicationMessage_Format1, test_kpm_ind_message) ;
-
-      printf ("I'm in FillAndEncodeKpmIndicationMessage 13 \n ");
 
       Encode (ind_message);
     }
