@@ -283,7 +283,7 @@ void
 E2Termination::SendE2Message (E2AP_PDU* pdu)
 {
   m_e2sim->encode_and_send_sctp_data (pdu);
-  // sleep(1); 
+  //sleep(1); 
 }
 
 }

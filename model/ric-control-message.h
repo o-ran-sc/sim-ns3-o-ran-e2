@@ -46,7 +46,7 @@ namespace ns3 {
   class RicControlMessage : public SimpleRefCount<RicControlMessage>
   {
   public:
-    enum ControlMessageRequestIdType { TS = 1001, QoS = 1002 };
+    enum ControlMessageRequestIdType { TS = 1001, QoS = 1002, RC=1024 };
     RicControlMessage (E2AP_PDU_t *pdu);
     ~RicControlMessage ();
 
@@ -60,6 +60,7 @@ namespace ns3 {
     RICrequestID_t m_ricRequestId;
     RICcallProcessID_t m_ricCallProcessId;
     E2SM_RC_ControlHeader_Format1_t *m_e2SmRcControlHeaderFormat1;
+    E2SM_RC_ControlMessage_Format1 *m_e2SmRcControlMessageFormat1;
     std::string GetSecondaryCellIdHO ();
 
   private:
