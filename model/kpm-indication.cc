@@ -55,6 +55,8 @@ extern "C" {
 //==============================================================
 #include "MeasurementRecordItem.h"
 #include "MeasurementDataItem.h"
+#include "MeasurementInfoItem.h"
+#include "LabelInfoItem.h"
 #include "MeasurementLabel.h"
 #include "E2SM-KPM-IndicationMessage-Format3.h"
 #include "UEMeasurementReportItem.h"
@@ -123,6 +125,7 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
                                                           KpmRicIndicationHeaderValues values)
 {
 
+  NS_LOG_INFO ("FillAndEncodeKpmRicIndicationHeader");
   E2SM_KPM_IndicationHeader_Format1_t *ind_header = (E2SM_KPM_IndicationHeader_Format1_t *) calloc (
       1, sizeof (E2SM_KPM_IndicationHeader_Format1_t));
 
@@ -136,6 +139,8 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
     {
     case gNB:
       {
+
+        NS_LOG_INFO ("gNB Header");
         static int sizeGnb = 4; // 3GPP Specs
 
         cellId_bstring = Create<BitString> (values.m_gnbId, sizeGnb);
@@ -152,6 +157,8 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
 
     case eNB:
       {
+        // Use this.
+        NS_LOG_INFO ("eNB Header");
         static int sizeEnb =
             3; // 3GPP TS 36.413 version 14.8.0 Release 14, Section 9.2.1.37 Global eNB ID
         static int unsedSizeEnb = 4;
@@ -170,6 +177,8 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
 
     case ng_eNB:
       {
+        NS_LOG_INFO ("ng_eNB Header");
+
         static int sizeEnb =
             3; // 3GPP TS 36.413 version 14.8.0 Release 14, Section 9.2.1.37 Global eNB ID
         static int unsedSizeEnb = 4;
@@ -190,6 +199,8 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
 
     case en_gNB:
       {
+        NS_LOG_INFO ("en_gNB Header");
+
         static int sizeGnb = 4; // 3GPP Specs
         cellId_bstring = Create<BitString> (values.m_gnbId, sizeGnb);
 
@@ -295,7 +306,7 @@ KpmIndicationMessage::Encode (E2SM_KPM_IndicationMessage_t *descriptor)
                           << strerror (errno) << ", failed_type " << encodedMsg.failed_type->name
                           << ", structure_ptr " << encodedMsg.structure_ptr);
 
-          printf ("Error during encoding ");
+          NS_LOG_INFO ("Error during encoding ");
         }
 
       m_buffer = ba_darsh.buf;
@@ -535,10 +546,10 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
       E2SM_KPM_IndicationMessage_t *ind_message =
           (E2SM_KPM_IndicationMessage_t *) calloc (1, sizeof (E2SM_KPM_IndicationMessage_t));
 
+      // 1. Adding a measurement values(item) to the packet.
       MeasurementRecord_t *measure_record =
           (MeasurementRecord_t *) calloc (1, sizeof (MeasurementRecord_t));
 
-      // 1. Adding a measurement values(item) to the packet.
       MeasurementRecordItem_t *measure_record_item =
           (MeasurementRecordItem_t *) calloc (1, sizeof (MeasurementRecordItem_t));
       measure_record_item->present = MeasurementRecordItem_PR_integer;
@@ -557,11 +568,42 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
 
       ASN_SEQUENCE_ADD (&measurement_data->list, measure_data_item);
 
+
+      // 2. TODO: Optional, but mandatory for flex ric "Fix warning commit".
+      MeasurementType_t * measurmentType = (MeasurementType_t *) calloc (1, sizeof (MeasurementType_t));
+      measurmentType->present = MeasurementType_PR_measID;
+      measurmentType->choice.measID = 1;
+
+      MeasurementLabel_t * measure_label = (MeasurementLabel_t *) calloc(1, sizeof(MeasurementLabel_t));
+
+      // TODO: add real plmnid from m_values.
+      Ptr<OctetString> plmnid = Create<OctetString> ("3d9bf3", 3);
+      measure_label->plmnID = plmnid->GetPointer();
+
+      LabelInfoItem_t * LabelInfoItem = (LabelInfoItem_t *) calloc (1, sizeof (LabelInfoItem_t));
+      LabelInfoItem->measLabel = *measure_label;
+
+      LabelInfoList_t * labelInfoolist = (LabelInfoList_t *) calloc (1, sizeof (LabelInfoList_t));
+      ASN_SEQUENCE_ADD (&labelInfoolist->list, LabelInfoItem);
+
+      MeasurementInfoItem_t * infoItem = (MeasurementInfoItem_t *) calloc (1, sizeof (MeasurementInfoItem_t));
+
+      infoItem->labelInfoList = *labelInfoolist;
+      infoItem->measType = *measurmentType;
+
+      MeasurementInfoList_t * infoList = (MeasurementInfoList_t *) calloc (1, sizeof (MeasurementInfoList_t));
+      ASN_SEQUENCE_ADD (&infoList->list, infoItem);
+
+      // 3. create Indication Message Format 1
       E2SM_KPM_IndicationMessage_Format1_t *test_kpm_ind_message =
           (E2SM_KPM_IndicationMessage_Format1_t *) calloc (
               1, sizeof (E2SM_KPM_IndicationMessage_Format1_t));
 
       test_kpm_ind_message->measData = *measurement_data;
+
+      test_kpm_ind_message->measInfoList = infoList;
+      // Print ASN from Indication Message, format 1.
+      NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_E2SM_KPM_IndicationMessage_Format1, test_kpm_ind_message));
 
       // Format 3 Part
 
