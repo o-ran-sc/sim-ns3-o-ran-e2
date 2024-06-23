@@ -64,6 +64,8 @@ extern "C" {
 
 #include "conversions.h"
 
+// #include "timing_ms.h"
+
 BIT_STRING_t cp_amf_region_id_to_bit_string (uint8_t src);
 
 uint8_t cp_amf_region_id_to_u8 (BIT_STRING_t src);
@@ -99,6 +101,86 @@ KpmIndicationHeader::~KpmIndicationHeader ()
   NS_LOG_FUNCTION (this);
   free (m_buffer);
   m_size = 0;
+}
+
+uint64_t KpmIndicationHeader::time_now_us_clck() {
+  struct timespec tms;
+
+  /* The C11 way */
+  /* if (! timespec_get(&tms, TIME_UTC))  */
+
+  /* POSIX.1-2008 way */
+  if (clock_gettime(CLOCK_REALTIME,&tms)) {
+    return -1;
+  }
+  /* seconds, multiplied with 1 million */
+  uint64_t micros = tms.tv_sec * 1000000;
+  /* Add full microseconds */
+  micros += tms.tv_nsec/1000;
+  /* round up if necessary */
+  if (tms.tv_nsec % 1000 >= 500) {
+    ++micros;
+  }
+  NS_LOG_INFO("**micros Timing is " << micros);
+  return micros;
+}
+
+// KPM ind_msg latency 
+OCTET_STRING_t KpmIndicationHeader::get_time_now_us() {
+
+  std::vector<uint8_t> byteArray(sizeof(uint64_t));
+
+  auto val = time_now_us_clck();
+
+  // NS_LOG_DEBUG("**VAL Timing is " << val);
+
+  memcpy(byteArray.data(), &val, sizeof(uint64_t));
+
+  // NS_LOG_DEBUG("ByteArray Size is " << byteArray.size());
+  
+  OCTET_STRING_t dst = {0};
+  
+  dst.buf = (uint8_t*)calloc(byteArray.size(), sizeof(uint8_t)); 
+  dst.size = byteArray.size();
+
+  memcpy(dst.buf, byteArray.data(), dst.size);
+
+  return dst;
+}
+
+OCTET_STRING_t KpmIndicationHeader::int_64_to_octet_string(uint64_t x)
+{
+    OCTET_STRING_t asn = {0};
+
+    asn.buf = (uint8_t*) calloc(sizeof(x) + 1, sizeof(char));
+    memcpy(asn.buf,&x,sizeof(x));
+    asn.size = sizeof(x);
+
+    return asn;
+}
+
+// OCTET_STRING_t KpmIndicationHeader::int_64_to_octet_string(uint64_t value)
+// {
+//   std::vector<uint8_t> byteArray(sizeof(uint64_t));
+//   memcpy(byteArray.data(), &value, sizeof(uint64_t));
+
+//   OCTET_STRING_t dst = {0};
+
+//   dst.buf = (uint8_t*)calloc(byteArray.size(), sizeof(uint8_t)); 
+//   dst.size = byteArray.size();
+
+//   memcpy(dst.buf, byteArray.data(), dst.size);
+
+//   return dst;
+// }
+
+uint64_t KpmIndicationHeader::octet_string_to_int_64(OCTET_STRING_t asn)
+{
+    uint64_t x = {0};
+
+    memcpy(&x, asn.buf, asn.size);
+
+    return x;
 }
 
 void
@@ -221,17 +303,27 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
       break;
     }
 
-  NS_LOG_DEBUG ("Timestamp received: " << values.m_timestamp);
-  long bigEndianTimestamp = htobe64 (values.m_timestamp);
-  NS_LOG_DEBUG ("Timestamp inverted: " << bigEndianTimestamp);
+  // NS_LOG_DEBUG ("Timestamp received: " << values.m_timestamp);
 
-  Ptr<OctetString> ts = Create<OctetString> ((void *) &bigEndianTimestamp, TIMESTAMP_LIMIT_SIZE);
-  //NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_OCTET_STRING, ts->GetPointer() ));
+  // // /*long*/ auto bigEndianTimestamp = timing_us::time_now_us(); // htobe64 (values.m_timestamp);
+  // long bigEndianTimestamp = htobe64 (values.m_timestamp); //timing_us::time_now_us();
 
-  // Ptr<OctetString> ts2 = Create<OctetString> ((void *) &values.m_timestamp, TIMESTAMP_LIMIT_SIZE);
-  // NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_OCTET_STRING, ts2->GetPointer()));
+  // NS_LOG_DEBUG ("Timestamp inverted: " << bigEndianTimestamp);
 
-  ind_header->colletStartTime = ts->GetValue ();
+  // Ptr<OctetString> ts = Create<OctetString> ((void *) &bigEndianTimestamp, TIMESTAMP_LIMIT_SIZE);
+  // NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_OCTET_STRING, ts->GetPointer() ));
+
+  // ind_header->colletStartTime = ts->GetValue ();
+
+
+  // OCTET_STRING_t _timing = get_time_now_us();
+
+  // NS_LOG_DEBUG("**Timing in _64 is " << octet_string_to_int_64(_timing));
+
+  auto x = int_64_to_octet_string(time_now_us_clck()); //_timing;
+  ind_header->colletStartTime =  x;
+  
+
 
   NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_E2SM_KPM_IndicationHeader_Format1, ind_header));
 
@@ -552,8 +644,11 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
 
       MeasurementRecordItem_t *measure_record_item =
           (MeasurementRecordItem_t *) calloc (1, sizeof (MeasurementRecordItem_t));
-      measure_record_item->present = MeasurementRecordItem_PR_integer;
-      measure_record_item->choice.integer = 1;
+      // measure_record_item->present = MeasurementRecordItem_PR_integer;
+      // measure_record_item->choice.integer = 1;
+
+      measure_record_item->present = MeasurementRecordItem_PR_real;
+      measure_record_item->choice.real = (rand() % 256) + 0.1;
 
       // Stream measurement records to list.
       ASN_SEQUENCE_ADD (&measure_record->list, measure_record_item);
@@ -594,7 +689,15 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
       MeasurementInfoList_t * infoList = (MeasurementInfoList_t *) calloc (1, sizeof (MeasurementInfoList_t));
       ASN_SEQUENCE_ADD (&infoList->list, infoItem);
 
-      // 3. create Indication Message Format 1
+
+      // GranularityPeriod_t CollectiveTime = time_now_us();
+/*
+  msg_frm_1.gran_period_ms = calloc(1, sizeof(*msg_frm_1.gran_period_ms));
+  assert(msg_frm_1.gran_period_ms != NULL && "Memory exhausted");
+  *msg_frm_1.gran_period_ms = (rand() % 4294967295) + 1;
+*/
+
+      // 4. create Indication Message Format 1
       E2SM_KPM_IndicationMessage_Format1_t *test_kpm_ind_message =
           (E2SM_KPM_IndicationMessage_Format1_t *) calloc (
               1, sizeof (E2SM_KPM_IndicationMessage_Format1_t));
@@ -621,6 +724,7 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
       gnb_asn->amf_UE_NGAP_ID.buf = (uint8_t *) calloc (5, sizeof (uint8_t));
       assert (gnb_asn->amf_UE_NGAP_ID.buf != NULL && "Memory exhausted");
 
+      // asn_ulong2INTEGER (&gnb_asn->amf_UE_NGAP_ID, rand() % 112358132134);
       asn_ulong2INTEGER (&gnb_asn->amf_UE_NGAP_ID, 112358132134);
 
       // dummy values
@@ -629,7 +733,9 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
       gnb_asn->guami.aMFRegionID = cp_amf_region_id_to_bit_string ((rand () % 2 ^ 8) + 0);
 
       // MCC_MNC_TO_PLMNID((uint16_t)(208), (uint16_t)(01) , (uint8_t)2, &gnb_asn->guami.pLMNIdentity);
-      gnb_asn->guami.pLMNIdentity = cp_plmn_identity_to_octant_string (505, 01, 2);
+      // gnb_asn->guami.pLMNIdentity = cp_plmn_identity_to_octant_string (505, 01, 2);
+      gnb_asn->guami.pLMNIdentity = cp_plmn_identity_to_octant_string (rand() % 505, rand() % 99, 2);
+
 
       UEID_t *ue_ID = (UEID_t *) calloc (1, sizeof (UEID_t));
       ue_ID->present = UEID_PR_gNB_UEID;

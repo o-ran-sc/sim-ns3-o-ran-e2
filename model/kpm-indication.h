@@ -25,10 +25,16 @@
 #ifndef KPM_INDICATION_H
 #define KPM_INDICATION_H
 
+#include <thread>
 #include "ns3/object.h"
 #include <set>
 
-extern "C" {
+#include <vector>
+#include <stdint.h>
+#include <stdlib.h>
+#include <time.h>
+
+extern "C" {  
   #include "E2SM-KPM-RANfunction-Description.h"
   #include "E2SM-KPM-IndicationHeader.h"
   #include "E2SM-KPM-IndicationMessage.h"
@@ -39,6 +45,7 @@ extern "C" {
   #include "ODU-PF-Container.h"
   #include "PF-ContainerListItem.h"
   #include "asn1c-types.h"
+
 //===================================
 
 }
@@ -95,6 +102,12 @@ namespace ns3 {
     
     KpmIndicationHeader (GlobalE2nodeType nodeType,KpmRicIndicationHeaderValues values);
     ~KpmIndicationHeader ();
+
+    uint64_t time_now_us_clck();
+    OCTET_STRING_t get_time_now_us();
+    uint64_t octet_string_to_int_64(OCTET_STRING_t asn);
+    OCTET_STRING_t int_64_to_octet_string(uint64_t value);
+
     void* m_buffer;
     size_t m_size;
     
