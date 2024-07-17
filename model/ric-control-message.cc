@@ -75,13 +75,12 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
                         break;
                     }
                     case 1024: {
-                        printf("** RC xApp message\n***");
                         NS_LOG_DEBUG("RC xApp message");
                         m_requestType = ControlMessageRequestIdType::RC;
                         break;
                     }
                     default:
-                        printf("** Unhandled ricRequestorID\n***");
+                        NS_LOG_DEBUG("Unhandled ricRequestorID\n");
                         m_requestType = static_cast<ControlMessageRequestIdType>(m_ricRequestId.ricRequestorID);
                         break;
                 }

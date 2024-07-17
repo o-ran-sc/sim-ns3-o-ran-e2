@@ -142,10 +142,11 @@ report_style1->ric_ActionFormat_Type = 1 ;
 //  report_style1->ric_ReportIndicationHeaderFormat_Type = 1;
  // report_style1->ric_ReportIndicationMessageFormat_Type = 1;
 //  report_style1->ric_ActionFormat_Type = 1 ; 
-  
-      (E2SM_KPM_RANfunction_Description::E2SM_KPM_RANfunction_Description__ric_ReportStyle_List *)
-          calloc (1, sizeof (E2SM_KPM_RANfunction_Description::
-                                 E2SM_KPM_RANfunction_Description__ric_ReportStyle_List));
+
+// ranfunc_desc->ric_ReportStyle_List =
+//       (E2SM_KPM_RANfunction_Description::E2SM_KPM_RANfunction_Description__ric_ReportStyle_List *)
+//           calloc (1, sizeof (E2SM_KPM_RANfunction_Description::
+//                                  E2SM_KPM_RANfunction_Description__ric_ReportStyle_List));
 
   ASN_SEQUENCE_ADD (&ranfunc_desc->ric_ReportStyle_List->list, report_style1);
 
