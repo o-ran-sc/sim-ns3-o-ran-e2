@@ -29,6 +29,7 @@
 #include <ns3/kpm-indication.h>
 #include <ns3/kpm-function-description.h>
 #include <ns3/ric-control-function-description.h>
+#include <ns3/ric-delete-function-description.h>
 #include <ns3/ric-control-message.h>
 #include "e2sim.hpp"
 
@@ -102,6 +103,14 @@ namespace ns3 {
       void RegisterSmCallbackToE2Sm (long ranFunctionId,
                                      Ptr<FunctionDescription> ranFunctionDescription,
                                      SmCallback smCb);
+
+      /**
+      * Reguster a callback function that handle events.
+      *
+      * \param functionId ID used to identify function wants to call.
+      * \param CbFun callback function that will be triggered if its called.
+      */
+      void RegisterCallbackFunctionToE2Sm (long functionId,CallbackFunction CbFun);
 
       /**
       * Struct holding the values returned by ProcessRicSubscriptionRequest

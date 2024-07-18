@@ -25,10 +25,16 @@
 #ifndef KPM_INDICATION_H
 #define KPM_INDICATION_H
 
+#include <thread>
 #include "ns3/object.h"
 #include <set>
 
-extern "C" {
+#include <vector>
+#include <stdint.h>
+#include <stdlib.h>
+#include <time.h>
+
+extern "C" {  
   #include "E2SM-KPM-RANfunction-Description.h"
   #include "E2SM-KPM-IndicationHeader.h"
   #include "E2SM-KPM-IndicationMessage.h"
@@ -39,6 +45,9 @@ extern "C" {
   #include "ODU-PF-Container.h"
   #include "PF-ContainerListItem.h"
   #include "asn1c-types.h"
+
+//===================================
+
 }
 
 namespace ns3 {
@@ -93,6 +102,12 @@ namespace ns3 {
     
     KpmIndicationHeader (GlobalE2nodeType nodeType,KpmRicIndicationHeaderValues values);
     ~KpmIndicationHeader ();
+
+    uint64_t time_now_us_clck();
+    OCTET_STRING_t get_time_now_us();
+    uint64_t octet_string_to_int_64(OCTET_STRING_t asn);
+    OCTET_STRING_t int_64_to_octet_string(uint64_t value);
+
     void* m_buffer;
     size_t m_size;
     
@@ -236,6 +251,75 @@ namespace ns3 {
     
     void* m_buffer;
     size_t m_size;
+// ======================================================================================
+    BIT_STRING_t cp_amf_region_id_to_bit_string(uint8_t src)
+    {
+      assert(src < 64);    
+  
+      BIT_STRING_t dst = {.buf=(uint8_t*)malloc(1), .size = 1,.bits_unused = 0,}; 
+      assert(dst.buf != NULL);
+  
+      memcpy(dst.buf, &src, 1);    
+  
+  return dst;
+   }
+
+
+
+BIT_STRING_t cp_amf_set_id_to_bit_string(uint16_t val)
+{
+  assert(val < 1024);
+
+  BIT_STRING_t dst = {0}; 
+  dst.buf = (uint8_t*)calloc(2, sizeof(uint8_t) ); 
+  dst.size = 2;
+  dst.bits_unused = 6; // unused_bit;
+  assert(dst.buf != NULL);
+
+  dst.buf[0] = val; // 0x5555;
+  dst.buf[1] = (val >> 8) << 6; 
+
+  return dst;
+}
+
+
+BIT_STRING_t cp_amf_ptr_to_bit_string(uint8_t src)
+{
+  assert(src < 64);
+
+  uint8_t tmp = src << 2;
+
+  BIT_STRING_t dst = { .buf = (uint8_t*)malloc(1), .size = 1,.bits_unused =2}; 
+  assert(dst.buf != NULL);
+  memcpy(dst.buf, &tmp, 1); 
+
+  return dst;
+}
+
+OCTET_STRING_t cp_plmn_identity_to_octant_string (uint16_t mCC,uint16_t mNC, uint8_t mNCdIGITlENGTH)
+{
+    OCTET_STRING_t dst = {0} ; 
+    dst.buf = (uint8_t*)calloc(3, sizeof(uint8_t)); 
+    dst.buf[0] = ((((mCC) / 10) % 10) << 4) | (mCC/100); 
+    dst.buf[1] = ((mNCdIGITlENGTH == 2 ? 15 : (mNC) / 100) << 4) | (mCC % 10);
+    dst.buf[2] = (((mNC) % 10) << 4) | (((mNC) / 10) % 10);
+    dst.size = 3 ;     
+    return dst ;                                              
+}
+
+OCTET_STRING_t cp_plmn_identity_to_octant_string (uint8_t src)
+{
+    OCTET_STRING_t dst = {0} ; 
+    dst.buf = (uint8_t*)calloc(3, sizeof(uint8_t));
+    dst.buf[0] = src << 4  ; 
+    dst.buf[1] = src << 4 ; 
+    dst.buf[2] = src << 4 ; 
+    dst.size = 3 ;     
+    return dst ;                                              
+}
+
+//==================================================================================
+
     
   private:
     static void CheckConstraints (KpmIndicationMessageValues values);

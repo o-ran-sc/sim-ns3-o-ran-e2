@@ -80,8 +80,8 @@ RicControlFunctionDescription::FillAndEncodeRCFunctionDescription (
   ranfunc_desc->ranFunction_Name.ranFunction_ShortName = shortName->GetValue ();
 
   // This part is not in the specs, maybe it can be removed?
-
-  uint8_t *descriptionBuffer = (uint8_t *) "RIC Control Definitions";
+// RIC Control Definitions
+  uint8_t *descriptionBuffer = (uint8_t *) "RICC";
   uint8_t *oidBuffer = (uint8_t *) "OID123"; // this is optional, dummy value
 
   long *inst = (long *) calloc (1, sizeof (long));
@@ -103,8 +103,8 @@ RicControlFunctionDescription::FillAndEncodeRCFunctionDescription (
   RIC_ControlStyle_Item_t *control_style0 =
       (RIC_ControlStyle_Item_t *) calloc (1, sizeof (RIC_ControlStyle_Item_t));
   control_style0->ric_ControlStyle_Type = 1;
-
-  uint8_t *controlStyleName0Buffer = (uint8_t *) "Radio Bearer Control";
+// Radio Bearer Control
+  uint8_t *controlStyleName0Buffer = (uint8_t *) "RBC";
   size_t controlStyleName0BufferSize = strlen ((char *) controlStyleName0Buffer);
   control_style0->ric_ControlStyle_Name.buf = (uint8_t *) calloc (1, controlStyleName0BufferSize);
   memcpy (control_style0->ric_ControlStyle_Name.buf, controlStyleName0Buffer,
@@ -123,7 +123,8 @@ RicControlFunctionDescription::FillAndEncodeRCFunctionDescription (
       (RIC_ControlAction_Item_t *) calloc (1, sizeof (RIC_ControlAction_Item_t));
 
   control_action0->ric_ControlAction_ID = 6;
-  uint8_t *controlActionName0Buffer = (uint8_t *) "DRB split ratio control";
+  // DRB split ratio control
+  uint8_t *controlActionName0Buffer = (uint8_t *) "DRB";
   size_t controlActionName0BufferSize = strlen ((char *) controlActionName0Buffer);
   control_action0->ric_ControlAction_Name.buf =
       (uint8_t *) calloc (1, controlActionName0BufferSize);
@@ -133,20 +134,20 @@ RicControlFunctionDescription::FillAndEncodeRCFunctionDescription (
   control_action0->ran_ControlParameters_List =
       (RIC_ControlAction_Item::RIC_ControlAction_Item__ran_ControlParameters_List *) calloc (
           1, sizeof (RIC_ControlAction_Item::RIC_ControlAction_Item__ran_ControlParameters_List));
-
+// Downlink PDCP Data Split
   RAN_ControlParameter_Item_t *ranParameter0 =
       (RAN_ControlParameter_Item_t *) calloc (1, sizeof (RAN_ControlParameter_Item_t));
-  uint8_t *ranParameter0NameBuffer = (uint8_t *) "Downlink PDCP Data Split";
+  uint8_t *ranParameter0NameBuffer = (uint8_t *) "PDCP";
   size_t ranParameter0NameBufferSize = strlen ((char *) ranParameter0NameBuffer);
   ranParameter0->ranParameter_Name.buf = (uint8_t *) calloc (1, ranParameter0NameBufferSize);
   memcpy (ranParameter0->ranParameter_Name.buf, ranParameter0NameBuffer,
           ranParameter0NameBufferSize);
   ranParameter0->ranParameter_Name.size = ranParameter0NameBufferSize;
   ranParameter0->ranParameter_ID = 3;
-
+// Uplink PDCP Data Split Threshold
   RAN_ControlParameter_Item_t *ranParameter1 =
       (RAN_ControlParameter_Item_t *) calloc (1, sizeof (RAN_ControlParameter_Item_t));
-  uint8_t *ranParameter1NameBuffer = (uint8_t *) "Uplink PDCP Data Split Threshold";
+  uint8_t *ranParameter1NameBuffer = (uint8_t *) "PDCP";
   size_t ranParameter1NameBufferSize = strlen ((char *) ranParameter1NameBuffer);
   ranParameter1->ranParameter_Name.buf = (uint8_t *) calloc (1, ranParameter1NameBufferSize);
   memcpy (ranParameter1->ranParameter_Name.buf, ranParameter1NameBuffer,
@@ -161,8 +162,8 @@ RicControlFunctionDescription::FillAndEncodeRCFunctionDescription (
   RIC_ControlStyle_Item_t *control_style1 =
       (RIC_ControlStyle_Item_t *) calloc (1, sizeof (RIC_ControlStyle_Item_t));
   control_style1->ric_ControlStyle_Type = 3;
-
-  uint8_t *controlStyleName1Buffer = (uint8_t *) "Radio Bearer Control";
+//Radio Bearer Control
+  uint8_t *controlStyleName1Buffer = (uint8_t *) "RBC";
   size_t controlStyleName1BufferSize = strlen ((char *) controlStyleName1Buffer);
   control_style1->ric_ControlStyle_Name.buf = (uint8_t *) calloc (1, controlStyleName1BufferSize);
   memcpy (control_style1->ric_ControlStyle_Name.buf, controlStyleName1Buffer,
@@ -180,7 +181,8 @@ RicControlFunctionDescription::FillAndEncodeRCFunctionDescription (
       (RIC_ControlAction_Item_t *) calloc (1, sizeof (RIC_ControlAction_Item_t));
 
   control_action1->ric_ControlAction_ID = 1;
-  uint8_t *controlActionName1Buffer = (uint8_t *) "Handover control";
+  // Handover control
+  uint8_t *controlActionName1Buffer = (uint8_t *) "HO";
   size_t controlActionName1BufferSize = strlen ((char *) controlActionName1Buffer);
   control_action1->ric_ControlAction_Name.buf =
       (uint8_t *) calloc (1, controlActionName1BufferSize);
@@ -193,7 +195,8 @@ RicControlFunctionDescription::FillAndEncodeRCFunctionDescription (
 
   RAN_ControlParameter_Item_t *ranParameter2 =
       (RAN_ControlParameter_Item_t *) calloc (1, sizeof (RAN_ControlParameter_Item_t));
-  uint8_t *ranParameter2NameBuffer = (uint8_t *) "NR CGI";
+      // NR CGI
+  uint8_t *ranParameter2NameBuffer = (uint8_t *) "NR";
   size_t ranParameter2NameBufferSize = strlen ((char *) ranParameter2NameBuffer);
   ranParameter2->ranParameter_Name.buf = (uint8_t *) calloc (1, ranParameter2NameBufferSize);
   memcpy (ranParameter2->ranParameter_Name.buf, ranParameter2NameBuffer,
@@ -203,7 +206,8 @@ RicControlFunctionDescription::FillAndEncodeRCFunctionDescription (
 
   RAN_ControlParameter_Item_t *ranParameter3 =
       (RAN_ControlParameter_Item_t *) calloc (1, sizeof (RAN_ControlParameter_Item_t));
-  uint8_t *ranParameter3NameBuffer = (uint8_t *) "E-UTRA CGI";
+      //E-UTRA CGI
+  uint8_t *ranParameter3NameBuffer = (uint8_t *) "CGI";
   size_t ranParameter3NameBufferSize = strlen ((char *) ranParameter3NameBuffer);
   ranParameter3->ranParameter_Name.buf = (uint8_t *) calloc (1, ranParameter3NameBufferSize);
   memcpy (ranParameter3->ranParameter_Name.buf, ranParameter3NameBuffer,

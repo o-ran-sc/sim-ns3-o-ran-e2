@@ -59,6 +59,8 @@ KpmFunctionDescription::Encode (E2SM_KPM_RANfunction_Description_t *descriptor)
 
   if (encodedMsg.result.encoded < 0)
     {
+      printf("I am Hereeeeeeeeeeeeeeeeeeeeeeee");
+      
       NS_FATAL_ERROR ("Error during the encoding of the RIC Indication Header, errno: "
                       << strerror (errno) << ", failed_type " << encodedMsg.result.failed_type->name
                       << ", structure_ptr " << encodedMsg.result.structure_ptr);
@@ -73,7 +75,9 @@ KpmFunctionDescription::FillAndEncodeKpmFunctionDescription (
     E2SM_KPM_RANfunction_Description_t *ranfunc_desc)
 {
   std::string shortNameBuffer = "ORAN-WG3-KPM";
-  uint8_t *descriptionBuffer = (uint8_t *) "KPM monitor";
+
+  //KPM monitor
+  uint8_t *descriptionBuffer = (uint8_t *) "KPM";
   uint8_t *oidBuffer = (uint8_t *) "OID123"; // this is optional, dummy value
 
   Ptr<OctetString> shortName = Create<OctetString> (shortNameBuffer, shortNameBuffer.size ());
@@ -100,7 +104,8 @@ KpmFunctionDescription::FillAndEncodeKpmFunctionDescription (
   RIC_EventTriggerStyle_Item_t *trigger_style =
       (RIC_EventTriggerStyle_Item_t *) calloc (1, sizeof (RIC_EventTriggerStyle_Item_t));
   trigger_style->ric_EventTriggerStyle_Type = 1;
-  uint8_t *eventTriggerStyleNameBuffer = (uint8_t *) "Periodic report";
+  //Periodic report
+  uint8_t *eventTriggerStyleNameBuffer = (uint8_t *) "PR";
   //  trigger_style->ric_EventTriggerStyle_Name = (OCTET_STRING_t*)calloc(1, sizeof(OCTET_STRING_t));
   trigger_style->ric_EventTriggerStyle_Name.buf =
       (uint8_t *) calloc (1, strlen ((char *) eventTriggerStyleNameBuffer));
@@ -120,9 +125,9 @@ KpmFunctionDescription::FillAndEncodeKpmFunctionDescription (
   RIC_ReportStyle_Item_t *report_style1 =
       (RIC_ReportStyle_Item_t *) calloc (1, sizeof (RIC_ReportStyle_Item_t));
   report_style1->ric_ReportStyle_Type = 1;
-
+// O-CU-CP Measurement Container for the EPC connected deployment
   uint8_t *reportStyleNameBuffer =
-      (uint8_t *) "O-CU-CP Measurement Container for the EPC connected deployment";
+      (uint8_t *) "O-CU-CP";
 
   //  report_style1->ric_ReportStyle_Name = (OCTET_STRING_t*)calloc(1, sizeof(OCTET_STRING_t));
   report_style1->ric_ReportStyle_Name.buf =
@@ -130,12 +135,18 @@ KpmFunctionDescription::FillAndEncodeKpmFunctionDescription (
   memcpy (report_style1->ric_ReportStyle_Name.buf, reportStyleNameBuffer,
           strlen ((char *) reportStyleNameBuffer));
   report_style1->ric_ReportStyle_Name.size = strlen ((char *) reportStyleNameBuffer);
-  report_style1->ric_ReportIndicationHeaderFormat_Type = 1;
-  report_style1->ric_ReportIndicationMessageFormat_Type = 1;
-  ranfunc_desc->ric_ReportStyle_List =
-      (E2SM_KPM_RANfunction_Description::E2SM_KPM_RANfunction_Description__ric_ReportStyle_List *)
-          calloc (1, sizeof (E2SM_KPM_RANfunction_Description::
-                                 E2SM_KPM_RANfunction_Description__ric_ReportStyle_List));
+report_style1->ric_IndicationHeaderFormat_Type = 1;  
+report_style1->ric_IndicationMessageFormat_Type = 1;
+/*Added RICACtionFormat*/
+report_style1->ric_ActionFormat_Type = 1 ; 
+//  report_style1->ric_ReportIndicationHeaderFormat_Type = 1;
+ // report_style1->ric_ReportIndicationMessageFormat_Type = 1;
+//  report_style1->ric_ActionFormat_Type = 1 ; 
+
+// ranfunc_desc->ric_ReportStyle_List =
+//       (E2SM_KPM_RANfunction_Description::E2SM_KPM_RANfunction_Description__ric_ReportStyle_List *)
+//           calloc (1, sizeof (E2SM_KPM_RANfunction_Description::
+//                                  E2SM_KPM_RANfunction_Description__ric_ReportStyle_List));
 
   ASN_SEQUENCE_ADD (&ranfunc_desc->ric_ReportStyle_List->list, report_style1);
 

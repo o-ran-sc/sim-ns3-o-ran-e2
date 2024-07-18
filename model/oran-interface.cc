@@ -28,7 +28,7 @@
 #include <ns3/log.h>
 #include <thread>
 #include "encode_e2apv1.hpp"
-
+#include<unistd.h>
 extern "C" {
   #include "RICsubscriptionRequest.h"
   #include "RICactionType.h"
@@ -100,6 +100,12 @@ E2Termination::RegisterSmCallbackToE2Sm (long ranFunctionId, Ptr<FunctionDescrip
 {
   RegisterFunctionDescToE2Sm (ranFunctionId,ranFunctionDescription);
   m_e2sim->register_sm_callback (ranFunctionId, smCb);
+}
+
+void
+E2Termination::RegisterCallbackFunctionToE2Sm (long functionId,CallbackFunction CbFun)
+{
+  m_e2sim->register_callback (functionId, CbFun);
 }
 
 void E2Termination::Start ()
@@ -266,6 +272,7 @@ E2Termination::ProcessRicSubscriptionRequest (E2AP_PDU_t* sub_req_pdu)
   int accept_size = actionIdsAccept.size();
   int reject_size = actionIdsReject.size();
 
+  // RIC-SUB-RES
   encoding::generate_e2apv1_subscription_response_success(e2ap_pdu, accept_array, reject_array, accept_size, reject_size, reqRequestorId, reqInstanceId);
 
   NS_LOG_DEBUG ("Send RIC Subscription Response");
@@ -283,6 +290,7 @@ void
 E2Termination::SendE2Message (E2AP_PDU* pdu)
 {
   m_e2sim->encode_and_send_sctp_data (pdu);
+  // sleep(1); 
 }
 
 }

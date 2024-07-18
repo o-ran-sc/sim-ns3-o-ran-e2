@@ -33,8 +33,9 @@ NS_LOG_COMPONENT_DEFINE ("RicControlMessage");
 
 RicControlMessage::RicControlMessage (E2AP_PDU_t* pdu)
 {
+  NS_LOG_INFO("Start of RicControlMessage::RicControlMessage()");
   DecodeRicControlMessage (pdu);
-  NS_LOG_INFO ("End of RicControlMessage::RicControlMessage()");
+  NS_LOG_INFO("End of RicControlMessage::RicControlMessage()");
 }
 
 RicControlMessage::~RicControlMessage ()
@@ -73,6 +74,15 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
                         m_requestType = ControlMessageRequestIdType::QoS;
                         break;
                     }
+                    case 1024: {
+                        NS_LOG_DEBUG("RC xApp message");
+                        m_requestType = ControlMessageRequestIdType::RC;
+                        break;
+                    }
+                    default:
+                        NS_LOG_DEBUG("Unhandled ricRequestorID\n");
+                        m_requestType = static_cast<ControlMessageRequestIdType>(m_ricRequestId.ricRequestorID);
+                        break;
                 }
                 break;
             }
@@ -116,34 +126,66 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
                 auto *e2SmControlMessage = (E2SM_RC_ControlMessage_t *) calloc(1,
                                                                                sizeof(E2SM_RC_ControlMessage_t));
                 ASN_STRUCT_RESET(asn_DEF_E2SM_RC_ControlMessage, e2SmControlMessage);
-
+                // Decode message then assign to e2SmControlMessage with sutable format.
                 asn_decode (nullptr, ATS_ALIGNED_BASIC_PER, &asn_DEF_E2SM_RC_ControlMessage,
                             (void **) &e2SmControlMessage, ie->value.choice.RICcontrolMessage.buf,
                             ie->value.choice.RICcontrolMessage.size);
 
+                NS_LOG_DEBUG("********** START Print Message and Size");
+                NS_LOG_DEBUG(ie->value.present);
+
+                NS_LOG_DEBUG(ie->value.choice.RICcontrolMessage.size);
+                int buf_lennnn = static_cast<int>(ie->value.choice.RICcontrolMessage.size);
+                for(int i =0 ;i <  buf_lennnn; ++i) {
+
+                NS_LOG_DEBUG(static_cast<int>(ie->value.choice.RICcontrolMessage.buf[i]));
+
+                }
+                NS_LOG_DEBUG("********** END Print Message and Size");
+
                 NS_LOG_INFO (xer_fprint(stderr, &asn_DEF_E2SM_RC_ControlMessage, e2SmControlMessage));
 
+                NS_LOG_DEBUG("****  e2SmControlMessage->present **** ");
+                NS_LOG_DEBUG(e2SmControlMessage->present);
+
+                const bool DISABLE_FOR_OCTANT_STRING = false;
                 if (e2SmControlMessage->present == E2SM_RC_ControlMessage_PR_controlMessage_Format1)
                   {
-                    NS_LOG_DEBUG ("[E2SM] E2SM_RC_ControlMessage_PR_controlMessage_Format1");
-                    E2SM_RC_ControlMessage_Format1_t *e2SmRcControlMessageFormat1 =
-                        e2SmControlMessage->choice.controlMessage_Format1;
-                    m_valuesExtracted =
-                        ExtractRANParametersFromControlMessage (e2SmRcControlMessageFormat1);
-                    if (m_requestType == ControlMessageRequestIdType::TS)
-                      {
-                        // Get and parse the secondaty cell id according to 3GPP TS 38.473, Section 9.2.2.1
-                        for (RANParameterItem item : m_valuesExtracted)
-                          {
-                            if (item.m_valueType == RANParameterItem::ValueType::OctectString)
-                              {
-                                // First 3 digits are the PLMNID (always 111), last digit is CellId
-                                std::string cgi = item.m_valueStr->DecodeContent ();
-                                 NS_LOG_INFO ("Decoded CGI value is: " << cgi);
-                                m_secondaryCellId = cgi.back();
-                              }
-                          }         
-                      }
+                    m_e2SmRcControlMessageFormat1 = e2SmControlMessage->choice.controlMessage_Format1;
+
+
+
+                    if(DISABLE_FOR_OCTANT_STRING) {
+                        NS_LOG_DEBUG ("[E2SM] E2SM_RC_ControlMessage_PR_controlMessage_Format1");
+                        E2SM_RC_ControlMessage_Format1_t *e2SmRcControlMessageFormat1 = (E2SM_RC_ControlMessage_Format1_t*) calloc(0, sizeof(E2SM_RC_ControlMessage_Format1_t));
+
+                        e2SmRcControlMessageFormat1 = e2SmControlMessage->choice.controlMessage_Format1;
+                        NS_LOG_INFO (xer_fprint(stderr, &asn_DEF_E2SM_RC_ControlMessage_Format1, e2SmRcControlMessageFormat1));
+                        NS_LOG_DEBUG("*** DONE e2SmControlMessage->choice.controlMessage_Format1 **");
+                        
+                        assert(e2SmRcControlMessageFormat1 != nullptr && " e2SmRcControlMessageFormat1 is Null");
+                        
+                        NS_LOG_DEBUG("*** DONE ASSERT ExtractRANParametersFromControlMessage **");
+                        m_valuesExtracted =
+                            RicControlMessage::ExtractRANParametersFromControlMessage (e2SmRcControlMessageFormat1);
+                        
+                        NS_LOG_DEBUG("*** DONE ExtractRANParametersFromControlMessage **");
+                        if (m_requestType == ControlMessageRequestIdType::TS)
+                        {
+                            // Get and parse the secondaty cell id according to 3GPP TS 38.473, Section 9.2.2.1
+                            for (RANParameterItem item : m_valuesExtracted)
+                            {
+                                if (item.m_valueType == RANParameterItem::ValueType::OctectString)
+                                {
+                                    // First 3 digits are the PLMNID (always 111), last digit is CellId
+                                    std::string cgi = item.m_valueStr->DecodeContent ();
+                                    NS_LOG_INFO ("Decoded CGI value is: " << cgi);
+                                    m_secondaryCellId = cgi.back();
+                                }
+                            }         
+                        }
+                    }
+              
                   }
                 else
                   {
@@ -195,12 +237,18 @@ RicControlMessage::GetSecondaryCellIdHO ()
   return m_secondaryCellId;
 }
 
-std::vector<RANParameterItem>
-RicControlMessage::ExtractRANParametersFromControlMessage (
-    E2SM_RC_ControlMessage_Format1_t *e2SmRcControlMessageFormat1)
+std::vector<RANParameterItem> RicControlMessage::ExtractRANParametersFromControlMessage (
+      E2SM_RC_ControlMessage_Format1_t *e2SmRcControlMessageFormat1) 
 {
+  NS_LOG_DEBUG("***** ExtractRANParametersFromControlMessage 0 ****");
   std::vector<RANParameterItem> ranParameterList;
+  NS_LOG_DEBUG("***** ExtractRANParametersFromControlMessage 1 *****");
+
+  assert(e2SmRcControlMessageFormat1->ranParameters_List != nullptr && " ranParametersList is null");
+  // Not implemeted in the FlexRIC side 
   int count = e2SmRcControlMessageFormat1->ranParameters_List->list.count;
+
+  NS_LOG_DEBUG("***** ExtractRANParametersFromControlMessage 2 *****");
   for (int i = 0; i < count; i++)
     {
       RANParameter_Item_t *ranParameterItem =
