@@ -3,6 +3,7 @@
  * Copyright (c) 2022 Northeastern University
  * Copyright (c) 2022 Sapienza, University of Rome
  * Copyright (c) 2022 University of Padova
+ * Copyright (c) 2024 Orange Innovation Egypt
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,6 +21,7 @@
  * Author: Andrea Lacava <thecave003@gmail.com>
  *		   Tommaso Zugno <tommasozugno@gmail.com>
  *		   Michele Polese <michele.polese@gmail.com>
+ *		   Mostafa Ashraf <mostafa.ashraf.ext@orange.com>
  */
 
 #ifndef KPM_INDICATION_H
@@ -105,8 +107,8 @@ namespace ns3 {
 
     uint64_t time_now_us_clck();
     OCTET_STRING_t get_time_now_us();
-    uint64_t octet_string_to_int_64(OCTET_STRING_t asn);
-    OCTET_STRING_t int_64_to_octet_string(uint64_t value);
+    static uint64_t octet_string_to_int_64(OCTET_STRING_t asn);
+    static OCTET_STRING_t int_64_to_octet_string(uint64_t value);
 
     void* m_buffer;
     size_t m_size;

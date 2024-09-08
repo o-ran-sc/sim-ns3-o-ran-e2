@@ -3,6 +3,7 @@
  * Copyright (c) 2022 Northeastern University
  * Copyright (c) 2022 Sapienza, University of Rome
  * Copyright (c) 2022 University of Padova
+ * Copyright (c) 2024 Orange Innovation Egypt
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,6 +21,7 @@
  * Author: Andrea Lacava <thecave003@gmail.com>
  *		   Tommaso Zugno <tommasozugno@gmail.com>
  *		   Michele Polese <michele.polese@gmail.com>
+ *       Mostafa Ashraf <mostafa.ashraf.ext@orange.com>
  */
 
 #include <ns3/kpm-indication.h>
@@ -192,7 +194,7 @@ KpmIndicationHeader::Encode (E2SM_KPM_IndicationHeader_t *descriptor)
 
   if (encodedHeader.result.encoded < 0)
     {
-      NS_FATAL_ERROR ("Error during the encoding of the RIC Indication Header, errno: "
+      NS_FATAL_ERROR ("*Error during the encoding of the RIC Indication Header, errno: "
                       << strerror (errno) << ", failed_type "
                       << encodedHeader.result.failed_type->name << ", structure_ptr "
                       << encodedHeader.result.structure_ptr);
@@ -214,8 +216,10 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
   Ptr<OctetString> plmnid = Create<OctetString> (values.m_plmId, 3);
   Ptr<BitString> cellId_bstring;
 
-  GlobalE2node_ID *globalE2nodeIdBuf = (GlobalE2node_ID *) calloc (1, sizeof (GlobalE2node_ID));
-  ind_header->id_GlobalE2node_ID = *globalE2nodeIdBuf;
+  ind_header->colletStartTime = get_time_now_us();
+
+  GlobalE2node_ID_t *globalE2nodeIdBuf = (GlobalE2node_ID *) calloc (1, sizeof (GlobalE2node_ID));
+
 
   switch (m_nodeType)
     {
@@ -227,13 +231,13 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
 
         cellId_bstring = Create<BitString> (values.m_gnbId, sizeGnb);
 
-        ind_header->id_GlobalE2node_ID.present = GlobalE2node_ID_PR_gNB;
+        globalE2nodeIdBuf->present = GlobalE2node_ID_PR_gNB;
         GlobalE2node_gNB_ID_t *globalE2node_gNB_ID =
             (GlobalE2node_gNB_ID_t *) calloc (1, sizeof (GlobalE2node_gNB_ID_t));
         globalE2node_gNB_ID->global_gNB_ID.plmn_id = plmnid->GetValue ();
         globalE2node_gNB_ID->global_gNB_ID.gnb_id.present = GNB_ID_Choice_PR_gnb_ID;
         globalE2node_gNB_ID->global_gNB_ID.gnb_id.choice.gnb_ID = cellId_bstring->GetValue ();
-        ind_header->id_GlobalE2node_ID.choice.gNB = globalE2node_gNB_ID;
+        globalE2nodeIdBuf->choice.gNB = globalE2node_gNB_ID;
       }
       break;
 
@@ -247,13 +251,13 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
 
         cellId_bstring = Create<BitString> (values.m_gnbId, sizeEnb, unsedSizeEnb);
 
-        ind_header->id_GlobalE2node_ID.present = GlobalE2node_ID_PR_eNB;
+        globalE2nodeIdBuf->present = GlobalE2node_ID_PR_eNB;
         GlobalE2node_eNB_ID_t *globalE2node_eNB_ID =
             (GlobalE2node_eNB_ID_t *) calloc (1, sizeof (GlobalE2node_eNB_ID_t));
         globalE2node_eNB_ID->global_eNB_ID.pLMNIdentity = plmnid->GetValue ();
         globalE2node_eNB_ID->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
         globalE2node_eNB_ID->global_eNB_ID.eNB_ID.choice.macro_eNB_ID = cellId_bstring->GetValue ();
-        ind_header->id_GlobalE2node_ID.choice.eNB = globalE2node_eNB_ID;
+        globalE2nodeIdBuf->choice.eNB = globalE2node_eNB_ID;
       }
       break;
 
@@ -266,7 +270,7 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
         static int unsedSizeEnb = 4;
 
         cellId_bstring = Create<BitString> (values.m_gnbId, sizeEnb, unsedSizeEnb);
-        ind_header->id_GlobalE2node_ID.present = GlobalE2node_ID_PR_ng_eNB;
+        globalE2nodeIdBuf->present = GlobalE2node_ID_PR_ng_eNB;
 
         GlobalE2node_ng_eNB_ID_t *globalE2node_ng_eNB_ID =
             (GlobalE2node_ng_eNB_ID_t *) calloc (1, sizeof (GlobalE2node_ng_eNB_ID_t));
@@ -275,7 +279,7 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
         globalE2node_ng_eNB_ID->global_ng_eNB_ID.enb_id.present = ENB_ID_Choice_PR_enb_ID_macro;
         globalE2node_ng_eNB_ID->global_ng_eNB_ID.enb_id.choice.enb_ID_macro =
             cellId_bstring->GetValue ();
-        ind_header->id_GlobalE2node_ID.choice.ng_eNB = globalE2node_ng_eNB_ID;
+        globalE2nodeIdBuf->choice.ng_eNB = globalE2node_ng_eNB_ID;
       }
       break;
 
@@ -286,14 +290,14 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
         static int sizeGnb = 4; // 3GPP Specs
         cellId_bstring = Create<BitString> (values.m_gnbId, sizeGnb);
 
-        ind_header->id_GlobalE2node_ID.present = GlobalE2node_ID_PR_en_gNB;
+        globalE2nodeIdBuf->present = GlobalE2node_ID_PR_en_gNB;
         GlobalE2node_en_gNB_ID_t *globalE2node_en_gNB_ID =
             (GlobalE2node_en_gNB_ID_t *) calloc (1, sizeof (GlobalE2node_en_gNB_ID_t));
         globalE2node_en_gNB_ID->global_gNB_ID.pLMN_Identity = plmnid->GetValue ();
         globalE2node_en_gNB_ID->global_gNB_ID.en_gNB_ID.present = EN_GNB_ID_PR_en_gNB_ID;
         globalE2node_en_gNB_ID->global_gNB_ID.en_gNB_ID.choice.en_gNB_ID =
             cellId_bstring->GetValue ();
-        ind_header->id_GlobalE2node_ID.choice.en_gNB = globalE2node_en_gNB_ID;
+        globalE2nodeIdBuf->choice.en_gNB = globalE2node_en_gNB_ID;
       }
       break;
 
@@ -303,27 +307,7 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
       break;
     }
 
-  // NS_LOG_DEBUG ("Timestamp received: " << values.m_timestamp);
-
-  // // /*long*/ auto bigEndianTimestamp = timing_us::time_now_us(); // htobe64 (values.m_timestamp);
-  // long bigEndianTimestamp = htobe64 (values.m_timestamp); //timing_us::time_now_us();
-
-  // NS_LOG_DEBUG ("Timestamp inverted: " << bigEndianTimestamp);
-
-  // Ptr<OctetString> ts = Create<OctetString> ((void *) &bigEndianTimestamp, TIMESTAMP_LIMIT_SIZE);
-  // NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_OCTET_STRING, ts->GetPointer() ));
-
-  // ind_header->colletStartTime = ts->GetValue ();
-
-
-  // OCTET_STRING_t _timing = get_time_now_us();
-
-  // NS_LOG_DEBUG("**Timing in _64 is " << octet_string_to_int_64(_timing));
-
-  auto x = int_64_to_octet_string(time_now_us_clck()); //_timing;
-  ind_header->colletStartTime =  x;
-  
-
+  ind_header->id_GlobalE2node_ID = *globalE2nodeIdBuf;
 
   NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_E2SM_KPM_IndicationHeader_Format1, ind_header));
 
@@ -715,41 +699,97 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
               1, sizeof (E2SM_KPM_IndicationMessage_Format3_t));
       assert (test_kpm_ind_message_format3 != nullptr && "Memory exhausted");
 
-      UEMeasurementReportItem_t *UE_data =
-          (UEMeasurementReportItem_t *) calloc (1, sizeof (UEMeasurementReportItem_t));
+      if(false && values.m_ueIndications.size() > 0) {
+          // arrayof<UEID_GNB_t> ues gnb_asn
+          NS_LOG_DEBUG("Mina NOWW values.m_ueIndications.size()= " << values.m_ueIndications.size());
+          // NS_LOG_INFO(values.m_ueIndications.size());
 
-      UEID_GNB_t *gnb_asn = (UEID_GNB_t *) calloc (1, sizeof (UEID_GNB_t));
-      assert (gnb_asn != NULL && "Memory exhausted");
+          if(values.m_ueIndications.size() > 0) {
 
-      gnb_asn->amf_UE_NGAP_ID.buf = (uint8_t *) calloc (5, sizeof (uint8_t));
-      assert (gnb_asn->amf_UE_NGAP_ID.buf != NULL && "Memory exhausted");
+          NS_LOG_DEBUG("2. NOWW values.m_ueIndications.size()= " << values.m_ueIndications.size());
 
-      // asn_ulong2INTEGER (&gnb_asn->amf_UE_NGAP_ID, rand() % 112358132134);
-      asn_ulong2INTEGER (&gnb_asn->amf_UE_NGAP_ID, 112358132134);
+            UEMeasurementReportList_t* m_ueMeasReportList = (UEMeasurementReportList_t *) calloc (
+              values.m_ueIndications.size(), sizeof (UEMeasurementReportList_t));
 
-      // dummy values
-      gnb_asn->guami.aMFPointer = cp_amf_ptr_to_bit_string ((rand () % 2 ^ 6) + 0);
-      gnb_asn->guami.aMFSetID = cp_amf_set_id_to_bit_string ((rand () % 2 ^ 10) + 0);
-      gnb_asn->guami.aMFRegionID = cp_amf_region_id_to_bit_string ((rand () % 2 ^ 8) + 0);
+            // TODO: Empty m_ueIndications always!!!!!
+            int _index = 0;
+            for(auto ueIndication : values.m_ueIndications) {
 
-      // MCC_MNC_TO_PLMNID((uint16_t)(208), (uint16_t)(01) , (uint8_t)2, &gnb_asn->guami.pLMNIdentity);
-      // gnb_asn->guami.pLMNIdentity = cp_plmn_identity_to_octant_string (505, 01, 2);
-      gnb_asn->guami.pLMNIdentity = cp_plmn_identity_to_octant_string (rand() % 505, rand() % 99, 2);
+              UEMeasurementReportItem_t *UE_data =
+                  (UEMeasurementReportItem_t *) calloc (1, sizeof (UEMeasurementReportItem_t));
+
+              UEID_GNB_t *gnb_asn = (UEID_GNB_t *) calloc (1, sizeof (UEID_GNB_t));
+              assert (gnb_asn != NULL && "Memory exhausted");
+
+              gnb_asn->amf_UE_NGAP_ID.buf = (uint8_t *) calloc (5, sizeof (uint8_t));
+              assert (gnb_asn->amf_UE_NGAP_ID.buf != NULL && "Memory exhausted");
+
+              asn_ulong2INTEGER (&gnb_asn->amf_UE_NGAP_ID,
+              static_cast<unsigned long>(KpmIndicationHeader::octet_string_to_int_64(ueIndication->GetId())));
+
+              // gnb_asn->amf_UE_NGAP_ID =  static_cast<INTEGER_t>(KpmIndicationHeader::octet_string_to_int_64(ueIndication->GetId()));
+
+              gnb_asn->guami.aMFPointer = cp_amf_ptr_to_bit_string ((rand () % 2 ^ 6) + 0);
+              gnb_asn->guami.aMFSetID = cp_amf_set_id_to_bit_string ((rand () % 2 ^ 10) + 0);
+              gnb_asn->guami.aMFRegionID = cp_amf_region_id_to_bit_string ((rand () % 2 ^ 8) + 0);
+
+              gnb_asn->guami.pLMNIdentity = cp_plmn_identity_to_octant_string (rand() % 505, rand() % 99, 2);
+
+              UEID_t *ue_ID = (UEID_t *) calloc (1, sizeof (UEID_t));
+              ue_ID->present = UEID_PR_gNB_UEID;
+              ue_ID->choice.gNB_UEID = gnb_asn;
+
+              UE_data->ueID = *ue_ID;
+              UE_data->measReport = *test_kpm_ind_message;
+
+              // TODO
+              ASN_SEQUENCE_ADD(&m_ueMeasReportList[_index++].list, UE_data);
 
 
-      UEID_t *ue_ID = (UEID_t *) calloc (1, sizeof (UEID_t));
-      ue_ID->present = UEID_PR_gNB_UEID;
-      ue_ID->choice.gNB_UEID = gnb_asn;
+              // test_kpm_ind_message_format3->ueMeasReportList.list[index] = UE_data;
 
-      UE_data->ueID = *ue_ID;
+            }
+            test_kpm_ind_message_format3->ueMeasReportList = *m_ueMeasReportList;
+            // ASN_SEQUENCE_ADD (&test_kpm_ind_message_format3->ueMeasReportList.list, m_ueMeasReportList);
+          }
+      } else {
+          UEMeasurementReportItem_t *UE_data =
+                  (UEMeasurementReportItem_t *) calloc (1, sizeof (UEMeasurementReportItem_t));
 
-      // Adding format 1 part with format 3 part.
-      UE_data->measReport = *test_kpm_ind_message;
+              UEID_GNB_t *gnb_asn = (UEID_GNB_t *) calloc (1, sizeof (UEID_GNB_t));
+              assert (gnb_asn != NULL && "Memory exhausted");
 
-      // equivelent to code below -- old  code
-      // ASN_SEQUENCE_ADD (&UE_data_list->list,UE_data);
-      // test_kpm_ind_message_format3->ueMeasReportList = *UE_data_list ;
-      ASN_SEQUENCE_ADD (&test_kpm_ind_message_format3->ueMeasReportList.list, UE_data);
+              gnb_asn->amf_UE_NGAP_ID.buf = (uint8_t *) calloc (5, sizeof (uint8_t));
+              assert (gnb_asn->amf_UE_NGAP_ID.buf != NULL && "Memory exhausted");
+
+              // asn_ulong2INTEGER (&gnb_asn->amf_UE_NGAP_ID, rand() % 112358132134);
+              asn_ulong2INTEGER (&gnb_asn->amf_UE_NGAP_ID, 112358132134);
+
+              // dummy values
+              gnb_asn->guami.aMFPointer = cp_amf_ptr_to_bit_string ((rand () % 2 ^ 6) + 0);
+              gnb_asn->guami.aMFSetID = cp_amf_set_id_to_bit_string ((rand () % 2 ^ 10) + 0);
+              gnb_asn->guami.aMFRegionID = cp_amf_region_id_to_bit_string ((rand () % 2 ^ 8) + 0);
+
+              // MCC_MNC_TO_PLMNID((uint16_t)(208), (uint16_t)(01) , (uint8_t)2, &gnb_asn->guami.pLMNIdentity);
+              // gnb_asn->guami.pLMNIdentity = cp_plmn_identity_to_octant_string (505, 01, 2);
+              gnb_asn->guami.pLMNIdentity = cp_plmn_identity_to_octant_string (rand() % 505, rand() % 99, 2);
+
+              UEID_t *ue_ID = (UEID_t *) calloc (1, sizeof (UEID_t));
+              ue_ID->present = UEID_PR_gNB_UEID;
+              ue_ID->choice.gNB_UEID = gnb_asn;
+
+              UE_data->ueID = *ue_ID;
+
+              // Adding format 1 part with format 3 part.
+              UE_data->measReport = *test_kpm_ind_message;
+
+              // equivelent to code below -- old  code
+              // ASN_SEQUENCE_ADD (&UE_data_list->list,UE_data);
+              // test_kpm_ind_message_format3->ueMeasReportList = *UE_data_list ;
+              ASN_SEQUENCE_ADD (&test_kpm_ind_message_format3->ueMeasReportList.list, UE_data);
+      }
+
+      NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_E2SM_KPM_IndicationMessage_Format3, test_kpm_ind_message_format3));
 
       ind_message->indicationMessage_formats.present =
           E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format3;
