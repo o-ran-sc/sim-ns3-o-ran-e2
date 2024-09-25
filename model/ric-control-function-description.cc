@@ -220,13 +220,25 @@ RicControlFunctionDescription::FillAndEncodeRCFunctionDescription (
 
   ASN_SEQUENCE_ADD (&control_style1->ric_ControlAction_List->list, control_action1);
 
-  ranfunc_desc->ric_ControlStyle_List =
+  /*ranfunc_desc->ric_ControlStyle_List =
       (E2SM_RC_RANFunctionDefinition::E2SM_RC_RANFunctionDefinition__ric_ControlStyle_List *)
           calloc (1, sizeof (E2SM_RC_RANFunctionDefinition::
                                  E2SM_RC_RANFunctionDefinition__ric_ControlStyle_List));
 
   ASN_SEQUENCE_ADD (&ranfunc_desc->ric_ControlStyle_List->list, control_style0);
-  ASN_SEQUENCE_ADD (&ranfunc_desc->ric_ControlStyle_List->list, control_style1);
+  ASN_SEQUENCE_ADD (&ranfunc_desc->ric_ControlStyle_List->list, control_style1);*/
+  
+  //i edit here 
+  E2SM_RC_ControlMessage_Format2_t *ric_controlStyle =(E2SM_RC_ControlMessage_Format2_t *) calloc (1, sizeof (E2SM_RC_ControlMessage_Format2_t));
+
+  /*ranfunc_desc->ric_ControlStyle_List =
+      (E2SM_RC_RANFunctionDefinition::E2SM_RC_RANFunctionDefinition__ric_ControlStyle_List *)
+          calloc (1, sizeof (E2SM_RC_RANFunctionDefinition::
+                                 E2SM_RC_RANFunctionDefinition__ric_ControlStyle_List));*/
+
+  ASN_SEQUENCE_ADD (&ric_controlStyle->ric_ControlStyle_List.list, control_style0);
+  ASN_SEQUENCE_ADD (&ric_controlStyle->ric_ControlStyle_List.list, control_style1);
+
 
   Encode (ranfunc_desc);
 

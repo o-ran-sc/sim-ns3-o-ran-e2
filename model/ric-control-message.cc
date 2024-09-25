@@ -104,13 +104,20 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
                 auto *e2smControlHeader = (E2SM_RC_ControlHeader_t *) calloc(1,
                                                                              sizeof(E2SM_RC_ControlHeader_t));
                 ASN_STRUCT_RESET(asn_DEF_E2SM_RC_ControlHeader, e2smControlHeader);
-                asn_decode (nullptr, ATS_ALIGNED_BASIC_PER, &asn_DEF_E2SM_RC_ControlHeader,
-                            (void **) &e2smControlHeader, ie->value.choice.RICcontrolHeader.buf,
-                            ie->value.choice.RICcontrolHeader.size);
+                asn_dec_rval_t rval = asn_decode(nullptr, ATS_ALIGNED_BASIC_PER, &asn_DEF_E2SM_RC_ControlHeader,
+                                     (void **) &e2smControlHeader,
+                                     ie->value.choice.RICcontrolHeader.buf,
+                                     ie->value.choice.RICcontrolHeader.size);
+                // Check if decoding was successful
+                if (rval.code != RC_OK) {
+                    NS_LOG_ERROR("[E2SM] Error decoding RICcontrolHeader");
+                    break;
+                }
+
 
                 NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_E2SM_RC_ControlHeader, e2smControlHeader));
-                if (e2smControlHeader->present == E2SM_RC_ControlHeader_PR_controlHeader_Format1) {
-                    m_e2SmRcControlHeaderFormat1 = e2smControlHeader->choice.controlHeader_Format1;
+                if (e2smControlHeader->ric_controlHeader_formats.present == E2SM_RC_ControlHeader__ric_controlHeader_formats_PR_controlHeader_Format1) {
+                    m_e2SmRcControlHeaderFormat1 = e2smControlHeader->ric_controlHeader_formats.choice.controlHeader_Format1;
                     //m_e2SmRcControlHeaderFormat1->ric_ControlAction_ID;
                     //m_e2SmRcControlHeaderFormat1->ric_ControlStyle_Type;
                     //m_e2SmRcControlHeaderFormat1->ueId;
@@ -118,6 +125,9 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
                     NS_LOG_DEBUG("[E2SM] Error in checking format of E2SM Control Header");
                 }
                 break;
+                 // Free the allocated memory for e2smControlHeader if needed
+                 ASN_STRUCT_FREE(asn_DEF_E2SM_RC_ControlHeader, e2smControlHeader);
+
             }
             case RICcontrolRequest_IEs__value_PR_RICcontrolMessage: {
                 NS_LOG_DEBUG("[E2SM] RICcontrolRequest_IEs__value_PR_RICcontrolMessage");
@@ -146,12 +156,12 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
                 NS_LOG_INFO (xer_fprint(stderr, &asn_DEF_E2SM_RC_ControlMessage, e2SmControlMessage));
 
                 NS_LOG_DEBUG("****  e2SmControlMessage->present **** ");
-                NS_LOG_DEBUG(e2SmControlMessage->present);
+                NS_LOG_DEBUG(e2SmControlMessage->ric_controlMessage_formats.present);
 
                 const bool DISABLE_FOR_OCTANT_STRING = false;
-                if (e2SmControlMessage->present == E2SM_RC_ControlMessage_PR_controlMessage_Format1)
+                if (e2SmControlMessage->ric_controlMessage_formats.present == E2SM_RC_ControlMessage__ric_controlMessage_formats_PR_controlMessage_Format1)
                   {
-                    m_e2SmRcControlMessageFormat1 = e2SmControlMessage->choice.controlMessage_Format1;
+                    m_e2SmRcControlMessageFormat1 = e2SmControlMessage->ric_controlMessage_formats.choice.controlMessage_Format1;
 
 
 
@@ -159,7 +169,7 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
                         NS_LOG_DEBUG ("[E2SM] E2SM_RC_ControlMessage_PR_controlMessage_Format1");
                         E2SM_RC_ControlMessage_Format1_t *e2SmRcControlMessageFormat1 = (E2SM_RC_ControlMessage_Format1_t*) calloc(0, sizeof(E2SM_RC_ControlMessage_Format1_t));
 
-                        e2SmRcControlMessageFormat1 = e2SmControlMessage->choice.controlMessage_Format1;
+                        e2SmRcControlMessageFormat1 = e2SmControlMessage->ric_controlMessage_formats.choice.controlMessage_Format1;
                         NS_LOG_INFO (xer_fprint(stderr, &asn_DEF_E2SM_RC_ControlMessage_Format1, e2SmRcControlMessageFormat1));
                         NS_LOG_DEBUG("*** DONE e2SmControlMessage->choice.controlMessage_Format1 **");
                         
@@ -237,22 +247,22 @@ RicControlMessage::GetSecondaryCellIdHO ()
   return m_secondaryCellId;
 }
 
-std::vector<RANParameterItem> RicControlMessage::ExtractRANParametersFromControlMessage (
+/*std::vector<RANParameterItem> RicControlMessage::ExtractRANParametersFromControlMessage (
       E2SM_RC_ControlMessage_Format1_t *e2SmRcControlMessageFormat1) 
 {
   NS_LOG_DEBUG("***** ExtractRANParametersFromControlMessage 0 ****");
   std::vector<RANParameterItem> ranParameterList;
   NS_LOG_DEBUG("***** ExtractRANParametersFromControlMessage 1 *****");
 
-  assert(e2SmRcControlMessageFormat1->ranParameters_List != nullptr && " ranParametersList is null");
+  assert(e2SmRcControlMessageFormat1->ranP_List != nullptr && " ranParametersList is null");
   // Not implemeted in the FlexRIC side 
-  int count = e2SmRcControlMessageFormat1->ranParameters_List->list.count;
+  int count = e2SmRcControlMessageFormat1->ranP_List.list.count;
 
   NS_LOG_DEBUG("***** ExtractRANParametersFromControlMessage 2 *****");
   for (int i = 0; i < count; i++)
     {
       RANParameter_Item_t *ranParameterItem =
-          e2SmRcControlMessageFormat1->ranParameters_List->list.array[i];
+          e2SmRcControlMessageFormat1->ranP_List.list.array[i];
       for (RANParameterItem extractedParameter :
            RANParameterItem::ExtractRANParametersFromRANParameter (ranParameterItem))
         {
@@ -261,6 +271,6 @@ std::vector<RANParameterItem> RicControlMessage::ExtractRANParametersFromControl
     }
 
   return ranParameterList;
-}
+}*/
 
 } // namespace ns3

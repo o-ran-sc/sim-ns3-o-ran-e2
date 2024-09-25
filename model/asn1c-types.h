@@ -48,6 +48,7 @@ extern "C" {
   #include "ResultsPerSSB-Index.h"
   #include "ResultsPerCSI-RS-Index.h"
   #include "E2SM-RC-ControlMessage-Format1.h"
+  #include "E2SM-RC-ControlMessage-Format2.h"
   #include "RANParameter-Item.h"
   #include "RANParameter-ValueType.h"
   #include "RANParameter-ELEMENT.h"
