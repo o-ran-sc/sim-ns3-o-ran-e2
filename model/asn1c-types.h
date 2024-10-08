@@ -333,16 +333,16 @@ private:
 };
 
 /**
-* Wrapper for class for RANParameter_Item_t 
+* Wrapper for class for RANParameter_STRUCTURE_Item_t 
 */
 class RANParameterItem : public SimpleRefCount<RANParameterItem>
 {
 public:
   enum ValueType{ Nothing = 0, Int = 1, OctectString = 2 };
-  RANParameterItem (RANParameter_Item_t *ranParameterItem);
+  RANParameterItem (RANParameter_STRUCTURE_Item_t *ranParameterItem);
   ~RANParameterItem ();
-  RANParameter_Item_t *GetPointer ();
-  RANParameter_Item_t GetValue ();
+  RANParameter_STRUCTURE_Item_t *GetPointer ();
+  RANParameter_STRUCTURE_Item_t GetValue ();
 
   ValueType m_valueType;
   long m_valueInt;
@@ -353,7 +353,7 @@ public:
 
 private:
   // Main struct
-  RANParameter_Item_t *m_ranParameterItem;
+  RANParameter_STRUCTURE_Item_t *m_ranParameterItem;
   BOOLEAN_t *m_keyFlag;
 };
 

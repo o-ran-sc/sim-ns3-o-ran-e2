@@ -870,7 +870,7 @@ MeasurementItem::GetValue ()
   return *m_measurementItem;
 }
 
-RANParameterItem::RANParameterItem (RANParameter_Item_t *ranParameterItem)
+RANParameterItem::RANParameterItem (RANParameter_STRUCTURE_Item_t *ranParameterItem)
 {
   m_ranParameterItem = ranParameterItem;
 }
