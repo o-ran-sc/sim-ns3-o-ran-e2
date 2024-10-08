@@ -254,7 +254,7 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
         globalE2nodeIdBuf->present = GlobalE2node_ID_PR_eNB;
         GlobalE2node_eNB_ID_t *globalE2node_eNB_ID =
             (GlobalE2node_eNB_ID_t *) calloc (1, sizeof (GlobalE2node_eNB_ID_t));
-        globalE2node_eNB_ID->global_eNB_ID.pLMNIdentity = plmnid->GetValue ();
+        globalE2node_eNB_ID->global_eNB_ID.pLMN_Identity = plmnid->GetValue ();
         globalE2node_eNB_ID->global_eNB_ID.eNB_ID.present = ENB_ID_PR_macro_eNB_ID;
         globalE2node_eNB_ID->global_eNB_ID.eNB_ID.choice.macro_eNB_ID = cellId_bstring->GetValue ();
         globalE2nodeIdBuf->choice.eNB = globalE2node_eNB_ID;
@@ -294,8 +294,8 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
         GlobalE2node_en_gNB_ID_t *globalE2node_en_gNB_ID =
             (GlobalE2node_en_gNB_ID_t *) calloc (1, sizeof (GlobalE2node_en_gNB_ID_t));
         globalE2node_en_gNB_ID->global_gNB_ID.pLMN_Identity = plmnid->GetValue ();
-        globalE2node_en_gNB_ID->global_gNB_ID.en_gNB_ID.present = EN_GNB_ID_PR_en_gNB_ID;
-        globalE2node_en_gNB_ID->global_gNB_ID.en_gNB_ID.choice.en_gNB_ID =
+        globalE2node_en_gNB_ID->global_gNB_ID.gNB_ID.present = ENGNB_ID_PR_gNB_ID;
+        globalE2node_en_gNB_ID->global_gNB_ID.gNB_ID.choice.gNB_ID =
             cellId_bstring->GetValue ();
         globalE2nodeIdBuf->choice.en_gNB = globalE2node_en_gNB_ID;
       }
@@ -307,7 +307,7 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
       break;
     }
 
-  ind_header->id_GlobalE2node_ID = *globalE2nodeIdBuf;
+  // ind_header->id_GlobalE2node_ID = *globalE2nodeIdBuf;
 
   NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_E2SM_KPM_IndicationHeader_Format1, ind_header));
 

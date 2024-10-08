@@ -53,6 +53,7 @@ extern "C" {
   #include "RANParameter-ValueType.h"
   #include "RANParameter-ELEMENT.h"
   #include "RANParameter-STRUCTURE.h"
+  #include "RANParameter-ValueType-Choice-ElementTrue.h"
 }
 
 namespace ns3 {
