@@ -54,6 +54,8 @@ extern "C" {
   #include "RANParameter-ELEMENT.h"
   #include "RANParameter-STRUCTURE.h"
   #include "RANParameter-ValueType-Choice-ElementTrue.h"
+  #include "RANParameter-ValueType-Choice-Structure.h"
+  #include "RANParameter-STRUCTURE-Item.h"
 }
 
 namespace ns3 {
@@ -347,7 +349,7 @@ public:
   Ptr<OctetString> m_valueStr;
 
   static std::vector<RANParameterItem>
-  ExtractRANParametersFromRANParameter (RANParameter_Item_t *ranParameterItem);
+  ExtractRANParametersFromRANParameter (RANParameter_STRUCTURE_Item_t *ranParameterItem);
 
 private:
   // Main struct

@@ -882,7 +882,7 @@ RANParameterItem::~RANParameterItem ()
 }
 
 std::vector<RANParameterItem>
-RANParameterItem::ExtractRANParametersFromRANParameter (RANParameter_Item_t *ranParameterItem)
+RANParameterItem::ExtractRANParametersFromRANParameter (RANParameter_STRUCTURE_Item_t *ranParameterItem)
 {
   std::vector<RANParameterItem> ranParameterList;
 
@@ -891,7 +891,7 @@ RANParameterItem::ExtractRANParametersFromRANParameter (RANParameter_Item_t *ran
   // NS_LOG_DEBUG ("----");
   // NS_LOG_DEBUG (" ID " << ranParameterItem->ranParameterItem_ID);
 
-  switch (ranParameterItem->ranParameterItem_valueType->present)
+  switch (ranParameterItem->ranParameter_valueType->present)
     {
       case RANParameter_ValueType_PR_NOTHING: {
         NS_LOG_DEBUG ("[E2SM] RANParameter_ValueType_PR_NOTHING");
@@ -909,7 +909,7 @@ RANParameterItem::ExtractRANParametersFromRANParameter (RANParameter_Item_t *ran
         // /* ????? */  ranParameterElement=
         //     ranParameterItem->ranParameterItem_valueType->choice.ranP_Choice_ElementTrue;
 
-        RANParameter_ValueType_t* ranPar_valueType = ranParameterItem->ranParameterItem_valueType;
+        RANParameter_ValueType_t* ranPar_valueType = ranParameterItem->ranParameter_valueType;
         RANParameter_ValueType_Choice_ElementTrue_t* elemTrue = ranPar_valueType->choice.ranP_Choice_ElementTrue;
         // newItem.m_keyFlag = &ranParameterElement->keyFlag;
         switch (elemTrue->ranParameter_value.present)
@@ -960,12 +960,17 @@ RANParameterItem::ExtractRANParametersFromRANParameter (RANParameter_Item_t *ran
         // RANParameter_STRUCTURE_t *ranParameterStructure =
         // RANParameter_ValueType_Choice_Structure_t* _ranParameterStructure = ranParameterItem->ranParameterItem_valueType->choice.ranP_Choice_Structure;
         
-        RANParameter_STRUCTURE_t* _ranParameterStructure = ranParameterItem->ranParameterItem_valueType->choice.ranP_Choice_Structure;
-        int count = _ranParameterStructure->sequence_of_ranParameters->list.count;
+        RANParameter_ValueType_Choice_Structure_t* _ranParameterStructure = ranParameterItem->ranParameter_valueType->choice.ranP_Choice_Structure;
+       
+        
+        //RANParameter_ValueType_Choice_Structure* ranP_Choice_Structure=
+      
+        int count = _ranParameterStructure->ranParameter_Structure->sequence_of_ranParameters->list.count;
         for (int i = 0; i < count; i++)
           {
-            RANParameter_Item_t *childRanItem =
-                _ranParameterStructure->sequence_of_ranParameters->list.array[i];
+            // RANParameter_Item_t *childRanItem =
+            RANParameter_STRUCTURE_Item_t *childRanItem = 
+                _ranParameterStructure->ranParameter_Structure->sequence_of_ranParameters->list.array[i];
 
             for (RANParameterItem extractedParameter : ExtractRANParametersFromRANParameter (childRanItem))
               {
