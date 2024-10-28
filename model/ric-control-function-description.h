@@ -3,6 +3,7 @@
  * Copyright (c) 2022 Northeastern University
  * Copyright (c) 2022 Sapienza, University of Rome
  * Copyright (c) 2022 University of Padova
+ * Copyright (c) 2024 Orange Innovation Egypt
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,6 +21,9 @@
  * Author: Andrea Lacava <thecave003@gmail.com>
  *		   Tommaso Zugno <tommasozugno@gmail.com>
  *		   Michele Polese <michele.polese@gmail.com>
+ *       Mostafa Ashraf <mostafa.ashraf.ext@orange.com>
+ *       Aya Kamal <aya.kamal.ext@orange.com>
+ *       Abdelrhman Soliman <abdelrhman.soliman.ext@orange.com>
  */
  
 #ifndef RIC_CONTROL_FUNCTION_DESCRIPTION_H
@@ -30,6 +34,10 @@
 
 extern "C" {
   #include "E2SM-RC-RANFunctionDefinition.h"
+  #include "RANFunctionDefinition-Control.h"
+  #include "RANFunctionDefinition-Control-Item.h"
+  #include "RANFunctionDefinition-Control-Action-Item.h"
+  #include "ControlAction-RANParameter-Item.h"
 }
 
 namespace ns3 {
@@ -42,7 +50,8 @@ namespace ns3 {
 
     
   private:
-  
+
+    // TODO: Rewrite this function to handle whole types of RC according to ORAN-Standared.
     void FillAndEncodeRCFunctionDescription (E2SM_RC_RANFunctionDefinition_t* descriptor);
     void Encode (E2SM_RC_RANFunctionDefinition_t* descriptor);
   };

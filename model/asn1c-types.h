@@ -3,6 +3,7 @@
  * Copyright (c) 2022 Northeastern University
  * Copyright (c) 2022 Sapienza, University of Rome
  * Copyright (c) 2022 University of Padova
+ * Copyright (c) 2024 Orange Innovation Egypt
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,6 +21,9 @@
  * Author: Andrea Lacava <thecave003@gmail.com>
  *		   Tommaso Zugno <tommasozugno@gmail.com>
  *		   Michele Polese <michele.polese@gmail.com>
+ *		   Mostafa Ashraf <mostafa.ashraf.ext@orange.com>
+ *       Aya Kamal <aya.kamal.ext@orange.com>
+ *       Abdelrhman Soliman <abdelrhman.soliman.ext@orange.com>
  */
 
 #ifndef ASN1C_TYPES_H
@@ -53,6 +57,9 @@ extern "C" {
   #include "RANParameter-ValueType.h"
   #include "RANParameter-ELEMENT.h"
   #include "RANParameter-STRUCTURE.h"
+  #include "RANParameter-ValueType-Choice-ElementTrue.h"
+  #include "RANParameter-ValueType-Choice-Structure.h"
+  #include "RANParameter-STRUCTURE-Item.h"
 }
 
 namespace ns3 {
@@ -330,27 +337,27 @@ private:
 };
 
 /**
-* Wrapper for class for RANParameter_Item_t 
+* Wrapper for class for RANParameter_STRUCTURE_Item_t 
 */
 class RANParameterItem : public SimpleRefCount<RANParameterItem>
 {
 public:
   enum ValueType{ Nothing = 0, Int = 1, OctectString = 2 };
-  RANParameterItem (RANParameter_Item_t *ranParameterItem);
+  RANParameterItem (RANParameter_STRUCTURE_Item_t *ranParameterItem);
   ~RANParameterItem ();
-  RANParameter_Item_t *GetPointer ();
-  RANParameter_Item_t GetValue ();
+  RANParameter_STRUCTURE_Item_t *GetPointer ();
+  RANParameter_STRUCTURE_Item_t GetValue ();
 
   ValueType m_valueType;
   long m_valueInt;
   Ptr<OctetString> m_valueStr;
 
   static std::vector<RANParameterItem>
-  ExtractRANParametersFromRANParameter (RANParameter_Item_t *ranParameterItem);
+  ExtractRANParametersFromRANParameter (RANParameter_STRUCTURE_Item_t *ranParameterItem);
 
 private:
   // Main struct
-  RANParameter_Item_t *m_ranParameterItem;
+  RANParameter_STRUCTURE_Item_t *m_ranParameterItem;
   BOOLEAN_t *m_keyFlag;
 };
 

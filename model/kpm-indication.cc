@@ -22,6 +22,8 @@
  *		   Tommaso Zugno <tommasozugno@gmail.com>
  *		   Michele Polese <michele.polese@gmail.com>
  *       Mostafa Ashraf <mostafa.ashraf.ext@orange.com>
+ *       Aya Kamal <aya.kamal.ext@orange.com>
+ *       Abdelrhman Soliman <abdelrhman.soliman.ext@orange.com>
  */
 
 #include <ns3/kpm-indication.h>
@@ -307,7 +309,7 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
       break;
     }
 
-  ind_header->id_GlobalE2node_ID = *globalE2nodeIdBuf;
+  // ind_header->id_GlobalE2node_ID = *globalE2nodeIdBuf;
 
   NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_E2SM_KPM_IndicationHeader_Format1, ind_header));
 
@@ -356,19 +358,21 @@ KpmIndicationMessage::CheckConstraints (KpmIndicationMessageValues values)
 
 typedef struct
 {
-  size_t len;
   uint8_t *buf;
+  size_t len;
 } darsh_byte_array_t;
 
 void
 KpmIndicationMessage::Encode (E2SM_KPM_IndicationMessage_t *descriptor)
 {
 
-  const bool USER_PRIVATE_BUFFER = false;
+  const bool USER_PRIVATE_BUFFER = true;
   if (USER_PRIVATE_BUFFER)
     {
 
-      darsh_byte_array_t ba_darsh = {.len = 2048, .buf = (uint8_t *) malloc (2048)};
+
+      darsh_byte_array_t ba_darsh = {.buf = (uint8_t *) malloc (2048), .len = 2048};
+      // byte_array_t ba_darsh = {.len = 2048, .buf = (uint8_t *) malloc (2048)};
 
       asn_enc_rval_t encodedMsg =
           asn_encode_to_buffer (NULL, ATS_ALIGNED_BASIC_PER, &asn_DEF_E2SM_KPM_IndicationMessage,
@@ -385,15 +389,16 @@ KpmIndicationMessage::Encode (E2SM_KPM_IndicationMessage_t *descriptor)
           NS_LOG_INFO ("Error during encoding ");
         }
 
+      assert(encodedMsg.encoded > -1 && (size_t)encodedMsg.encoded <= ba_darsh.len);
       m_buffer = ba_darsh.buf;
-      m_size = ba_darsh.len;
+      m_size = encodedMsg.encoded;
     }
   else
     {
 
-      asn_codec_ctx_t *opt_cod = 0; // disable stack bounds checking
+      // asn_codec_ctx_t *opt_cod = 0; // disable stack bounds checking
       asn_encode_to_new_buffer_result_s encodedMsg = asn_encode_to_new_buffer (
-          opt_cod, ATS_ALIGNED_BASIC_PER, &asn_DEF_E2SM_KPM_IndicationMessage, descriptor);
+          NULL, ATS_ALIGNED_BASIC_PER, &asn_DEF_E2SM_KPM_IndicationMessage, descriptor);
 
       if (encodedMsg.result.encoded < 0)
         {
@@ -558,7 +563,9 @@ KpmIndicationMessage::FillODuContainer (PF_Container_t *ranContainer,
   ranContainer->choice.oDU = odu;
   ranContainer->present = PF_Container_PR_oDU;
 }
+// void KpmIndicationMessage::AddMeasurementType() {
 
+// }
 void
 KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMessage_t *descriptor,
                                                          KpmIndicationMessageValues values)
@@ -632,7 +639,7 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
       // measure_record_item->choice.integer = 1;
 
       measure_record_item->present = MeasurementRecordItem_PR_real;
-      measure_record_item->choice.real = (rand() % 256) + 0.1;
+      measure_record_item->choice.real = 0;//(rand() % 256) + 0.1;
 
       // Stream measurement records to list.
       ASN_SEQUENCE_ADD (&measure_record->list, measure_record_item);
@@ -649,15 +656,38 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
 
 
       // 2. TODO: Optional, but mandatory for flex ric "Fix warning commit".
+      /*
+      
+        m_measName =
+      (MeasurementTypeName_t *) calloc (1, sizeof (MeasurementTypeName_t));
+  m_measName->buf = (uint8_t *) calloc (1, sizeof (OCTET_STRING));
+  m_measName->size = name.length ();
+  memcpy (m_measName->buf, name.c_str (), m_measName->size);
+
+  m_measurementItem->pmType.choice.measName = *m_measName;
+  m_measurementItem->pmType.present = MeasurementType_PR_measName;
+
+      */
       MeasurementType_t * measurmentType = (MeasurementType_t *) calloc (1, sizeof (MeasurementType_t));
-      measurmentType->present = MeasurementType_PR_measID;
-      measurmentType->choice.measID = 1;
+      measurmentType->present = MeasurementType_PR_measName;
+      // DRB.RlcSduDelayDl
+      std::string name = "DRB.RlcSduDelayDl";
+      MeasurementTypeName_t * m_measName = (MeasurementTypeName_t *) calloc (1, sizeof (MeasurementTypeName_t));
+      m_measName->buf = (uint8_t *) calloc (1, sizeof (OCTET_STRING));
+      m_measName->size = name.length ();
+      memcpy (m_measName->buf, name.c_str (), m_measName->size);
+
+      measurmentType->choice.measName = *m_measName;
 
       MeasurementLabel_t * measure_label = (MeasurementLabel_t *) calloc(1, sizeof(MeasurementLabel_t));
 
       // TODO: add real plmnid from m_values.
-      Ptr<OctetString> plmnid = Create<OctetString> ("3d9bf3", 3);
-      measure_label->plmnID = plmnid->GetPointer();
+      // Ptr<OctetString> plmnid = Create<OctetString> ("3d9bf3", 3);
+      // measure_label->plmnID = plmnid->GetPointer();
+      measure_label->noLabel = (long *) malloc (sizeof(long));
+      assert (measure_label->noLabel != NULL && "Memory exhausted");
+      *measure_label->noLabel = 0;
+
 
       LabelInfoItem_t * LabelInfoItem = (LabelInfoItem_t *) calloc (1, sizeof (LabelInfoItem_t));
       LabelInfoItem->measLabel = *measure_label;
@@ -699,6 +729,7 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
               1, sizeof (E2SM_KPM_IndicationMessage_Format3_t));
       assert (test_kpm_ind_message_format3 != nullptr && "Memory exhausted");
 
+      // TODOL Multi UEs
       if(false && values.m_ueIndications.size() > 0) {
           // arrayof<UEID_GNB_t> ues gnb_asn
           NS_LOG_DEBUG("Mina NOWW values.m_ueIndications.size()= " << values.m_ueIndications.size());
@@ -735,6 +766,18 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
 
               gnb_asn->guami.pLMNIdentity = cp_plmn_identity_to_octant_string (rand() % 505, rand() % 99, 2);
 
+              // TODO
+              // gnb_asn->ran_UEID 
+
+              gnb_asn->ran_UEID = (RANUEID_t *) calloc(1, sizeof(*gnb_asn->ran_UEID));
+              gnb_asn->ran_UEID->buf = (uint8_t *) calloc(8, sizeof(*gnb_asn->ran_UEID->buf));
+              uint8_t ran_ue_id[8] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+              memcpy(gnb_asn->ran_UEID->buf, ran_ue_id, 8);
+              gnb_asn->ran_UEID->size = 8;
+              /* 
+                gnb_asn->ran_UEID->buf = calloc(8, sizeof(*gnb_asn->ran_UEID->buf));
+              */
+
               UEID_t *ue_ID = (UEID_t *) calloc (1, sizeof (UEID_t));
               ue_ID->present = UEID_PR_gNB_UEID;
               ue_ID->choice.gNB_UEID = gnb_asn;
@@ -763,16 +806,29 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
               assert (gnb_asn->amf_UE_NGAP_ID.buf != NULL && "Memory exhausted");
 
               // asn_ulong2INTEGER (&gnb_asn->amf_UE_NGAP_ID, rand() % 112358132134);
-              asn_ulong2INTEGER (&gnb_asn->amf_UE_NGAP_ID, 112358132134);
+              asn_ulong2INTEGER (&gnb_asn->amf_UE_NGAP_ID, 1);
+              // asn_ulong2INTEGER (&gnb_asn->amf_UE_NGAP_ID, 112358132134);
+
 
               // dummy values
-              gnb_asn->guami.aMFPointer = cp_amf_ptr_to_bit_string ((rand () % 2 ^ 6) + 0);
-              gnb_asn->guami.aMFSetID = cp_amf_set_id_to_bit_string ((rand () % 2 ^ 10) + 0);
-              gnb_asn->guami.aMFRegionID = cp_amf_region_id_to_bit_string ((rand () % 2 ^ 8) + 0);
+              // gnb_asn->guami.aMFPointer = cp_amf_ptr_to_bit_string ((rand () % 2 ^ 6) + 0);
+              // gnb_asn->guami.aMFSetID = cp_amf_set_id_to_bit_string ((rand () % 2 ^ 10) + 0);
+              // gnb_asn->guami.aMFRegionID = cp_amf_region_id_to_bit_string ((rand () % 2 ^ 8) + 0);
+              gnb_asn->guami.aMFPointer = cp_amf_ptr_to_bit_string (0);
+              gnb_asn->guami.aMFSetID = cp_amf_set_id_to_bit_string (1);
+              gnb_asn->guami.aMFRegionID = cp_amf_region_id_to_bit_string (2 + 0);
 
               // MCC_MNC_TO_PLMNID((uint16_t)(208), (uint16_t)(01) , (uint8_t)2, &gnb_asn->guami.pLMNIdentity);
               // gnb_asn->guami.pLMNIdentity = cp_plmn_identity_to_octant_string (505, 01, 2);
               gnb_asn->guami.pLMNIdentity = cp_plmn_identity_to_octant_string (rand() % 505, rand() % 99, 2);
+
+              // TODO
+              // gnb_asn->ran_UEID 
+              gnb_asn->ran_UEID = (RANUEID_t *) calloc(1, sizeof(*gnb_asn->ran_UEID));
+              gnb_asn->ran_UEID->buf = (uint8_t *) calloc(8, sizeof(*gnb_asn->ran_UEID->buf));
+              uint8_t ran_ue_id[8] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+              memcpy(gnb_asn->ran_UEID->buf, ran_ue_id, 8);
+              gnb_asn->ran_UEID->size = 8;
 
               UEID_t *ue_ID = (UEID_t *) calloc (1, sizeof (UEID_t));
               ue_ID->present = UEID_PR_gNB_UEID;
@@ -791,10 +847,16 @@ KpmIndicationMessage::FillAndEncodeKpmIndicationMessage (E2SM_KPM_IndicationMess
 
       NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_E2SM_KPM_IndicationMessage_Format3, test_kpm_ind_message_format3));
 
+      // NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_E2SM_KPM_IndicationMessage, test_kpm_ind_message_format3));
+
+// asn_DEF_E2SM_KPM_IndicationMessage
+
       ind_message->indicationMessage_formats.present =
           E2SM_KPM_IndicationMessage__indicationMessage_formats_PR_indicationMessage_Format3;
       ind_message->indicationMessage_formats.choice.indicationMessage_Format3 =
           test_kpm_ind_message_format3;
+
+      NS_LOG_INFO (xer_fprint (stderr, &asn_DEF_E2SM_KPM_IndicationMessage, ind_message));
 
       Encode (ind_message);
 
