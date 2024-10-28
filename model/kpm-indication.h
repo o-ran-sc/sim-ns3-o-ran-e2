@@ -22,6 +22,8 @@
  *		   Tommaso Zugno <tommasozugno@gmail.com>
  *		   Michele Polese <michele.polese@gmail.com>
  *		   Mostafa Ashraf <mostafa.ashraf.ext@orange.com>
+ *       Aya Kamal <aya.kamal.ext@orange.com>
+ *       Abdelrhman Soliman <abdelrhman.soliman.ext@orange.com>
  */
 
 #ifndef KPM_INDICATION_H
