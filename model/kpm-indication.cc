@@ -65,6 +65,7 @@ extern "C" {
 #include "E2SM-KPM-IndicationMessage-Format3.h"
 #include "UEMeasurementReportItem.h"
 #include "UEID-GNB.h"
+#include <arpa/inet.h>
 
 #include "conversions.h"
 
@@ -206,6 +207,12 @@ KpmIndicationHeader::Encode (E2SM_KPM_IndicationHeader_t *descriptor)
   m_size = encodedHeader.result.encoded;
 }
 
+uint64_t ntohll(uint64_t val) {
+    uint32_t high = ntohl((uint32_t)(val >> 32));  // Convert high 32 bits
+    uint32_t low = ntohl((uint32_t)(val & 0xFFFFFFFF));  // Convert low 32 bits
+
+    return ((uint64_t)high << 32) | low;  // Combine the high and low 32 bits back together
+}
 void
 KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHeader_t *descriptor,
                                                           KpmRicIndicationHeaderValues values)
@@ -217,9 +224,23 @@ KpmIndicationHeader::FillAndEncodeKpmRicIndicationHeader (E2SM_KPM_IndicationHea
 
   Ptr<OctetString> plmnid = Create<OctetString> (values.m_plmId, 3);
   Ptr<BitString> cellId_bstring;
+  TimeStamp_t colstartTime;
 
-  ind_header->colletStartTime = get_time_now_us();
+  colstartTime = get_time_now_us();
+// Convert from OCTET STRING to uint64
+uint64_t original_time;
+memcpy(&original_time, colstartTime.buf, sizeof(uint64_t));
 
+// Convert to network byte order
+uint64_t network_order_time = ntohll(original_time);
+
+// Assign network_order_time back to colletStartTime as an OCTET_STRING
+ind_header->colletStartTime.buf = (uint8_t *)calloc(8, sizeof(uint8_t));
+memcpy(ind_header->colletStartTime.buf, &network_order_time, sizeof(uint64_t));
+ind_header->colletStartTime.size = sizeof(uint64_t);
+
+  
+   NS_LOG_INFO(" LOOOOOK -> colletStartTime " << octet_string_to_int_64(ind_header->colletStartTime));
   GlobalE2node_ID_t *globalE2nodeIdBuf = (GlobalE2node_ID *) calloc (1, sizeof (GlobalE2node_ID));
 
 
