@@ -65,8 +65,8 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
                 m_ricRequestId = ie->value.choice.RICrequestID;
                 switch (m_ricRequestId.ricRequestorID) {
                     case 1001: {
-                        NS_LOG_DEBUG("TS xApp message");
-                        m_requestType = ControlMessageRequestIdType::TS;
+                        NS_LOG_DEBUG("HO xApp message");
+                        m_requestType = ControlMessageRequestIdType::HO;
                         break;
                     }
                     case 1002: {
@@ -180,7 +180,7 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
                             RicControlMessage::ExtractRANParametersFromControlMessage (e2SmRcControlMessageFormat1);
                         
                         NS_LOG_DEBUG("*** DONE ExtractRANParametersFromControlMessage **");
-                        if (m_requestType == ControlMessageRequestIdType::TS)
+                        if (m_requestType == ControlMessageRequestIdType::HO)
                         {
                             // Get and parse the secondaty cell id according to 3GPP TS 38.473, Section 9.2.2.1
                             for (RANParameterItem item : m_valuesExtracted)
@@ -243,7 +243,35 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
 
 std::string
 RicControlMessage::GetSecondaryCellIdHO ()
-{
+{ 
+   bool decode =false;
+    if (decode)
+        { 
+        //     E2SM_RC_ControlMessage_Format1_Item_t *RAN_pram1 = (E2SM_RC_ControlMessage_Format1_Item_t *) 
+        //                             calloc (1,sizeof(E2SM_RC_ControlMessage_Format1_Item_t));
+            
+        //     RAN_pram1 =controlMessage->m_e2SmRcControlMessageFormat1->ranP_List.list.array[0];
+                     
+        //    RANParameter_ValueType_Choice_Structure_t *CHOICE_Target_Cell =  (RANParameter_ValueType_Choice_Structure_t *) 
+        //                             calloc (1,sizeof(RANParameter_ValueType_Choice_Structure_t));
+        
+        //     CHOICE_Target_Cell = &RAN_pram1->ranParameter_valueType.choice.ranP_Choice_Structure->ranParameter_Structure->sequence_of_ranParameters.list.array[0];
+
+
+
+        //     RANParameter_ValueType_Choice_ElementFalse* RAN_pram1_valueType= (RANParameter_ValueType_Choice_ElementFalse_t *) 
+        //                             calloc (1,sizeof(RANParameter_ValueType_Choice_ElementFalse_t));
+            
+        //      RAN_pram1_valueType= RAN_pram1->ranParameter_valueType.choice.ranP_Choice_ElementFalse;
+
+
+        //     RANParameter_Value_t * NR_CGI = (RANParameter_Value_t *) 
+        //                             calloc (1,sizeof(RANParameter_Value_t));
+            
+        //     NR_CGI = &RAN_pram1_valueType->ranParameter_value->choice.valueInt;   
+         }
+
+          
   return m_secondaryCellId;
 }
 
