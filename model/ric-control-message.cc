@@ -23,6 +23,8 @@
  */
  
 #include <ns3/ric-control-message.h>
+#include "E2SM-RC-ControlMessage-Format1-Item.h"
+#include "RANParameter-ValueType-Choice-ElementFalse.h"
 #include <ns3/asn1c-types.h>
 #include <ns3/log.h>
 #include <bitset>
@@ -243,62 +245,66 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
 
 std::string
 RicControlMessage::GetSecondaryCellIdHO ()
-{ 
-   bool decode =false;
-    if (decode)
-        { 
-        //     E2SM_RC_ControlMessage_Format1_Item_t *RAN_pram1 = (E2SM_RC_ControlMessage_Format1_Item_t *) 
-        //                             calloc (1,sizeof(E2SM_RC_ControlMessage_Format1_Item_t));
-            
-        //     RAN_pram1 =controlMessage->m_e2SmRcControlMessageFormat1->ranP_List.list.array[0];
-                     
-        //    RANParameter_ValueType_Choice_Structure_t *CHOICE_Target_Cell =  (RANParameter_ValueType_Choice_Structure_t *) 
-        //                             calloc (1,sizeof(RANParameter_ValueType_Choice_Structure_t));
-        
-        //     CHOICE_Target_Cell = &RAN_pram1->ranParameter_valueType.choice.ranP_Choice_Structure->ranParameter_Structure->sequence_of_ranParameters.list.array[0];
-
-
-
-        //     RANParameter_ValueType_Choice_ElementFalse* RAN_pram1_valueType= (RANParameter_ValueType_Choice_ElementFalse_t *) 
-        //                             calloc (1,sizeof(RANParameter_ValueType_Choice_ElementFalse_t));
-            
-        //      RAN_pram1_valueType= RAN_pram1->ranParameter_valueType.choice.ranP_Choice_ElementFalse;
-
-
-        //     RANParameter_Value_t * NR_CGI = (RANParameter_Value_t *) 
-        //                             calloc (1,sizeof(RANParameter_Value_t));
-            
-        //     NR_CGI = &RAN_pram1_valueType->ranParameter_value->choice.valueInt;   
-         }
-
-          
+{       
   return m_secondaryCellId;
 }
 
-/*std::vector<RANParameterItem> RicControlMessage::ExtractRANParametersFromControlMessage (
-      E2SM_RC_ControlMessage_Format1_t *e2SmRcControlMessageFormat1) 
-{
-  NS_LOG_DEBUG("***** ExtractRANParametersFromControlMessage 0 ****");
-  std::vector<RANParameterItem> ranParameterList;
-  NS_LOG_DEBUG("***** ExtractRANParametersFromControlMessage 1 *****");
-
-  assert(e2SmRcControlMessageFormat1->ranP_List != nullptr && " ranParametersList is null");
-  // Not implemeted in the FlexRIC side 
-  int count = e2SmRcControlMessageFormat1->ranP_List.list.count;
-
-  NS_LOG_DEBUG("***** ExtractRANParametersFromControlMessage 2 *****");
-  for (int i = 0; i < count; i++)
-    {
-      RANParameter_Item_t *ranParameterItem =
-          e2SmRcControlMessageFormat1->ranP_List.list.array[i];
-      for (RANParameterItem extractedParameter :
-           RANParameterItem::ExtractRANParametersFromRANParameter (ranParameterItem))
+uint16_t RicControlMessage::GetTargetCell() const
         {
-          ranParameterList.push_back (extractedParameter);
-        }
-    }
+             int size =m_e2SmRcControlMessageFormat1->ranP_List.list.size;  //(RANParameter_STRUCTURE_Item_t*)
+             printf("size = %d\n", size);          
+              // 8.4.4.1  Handover Control
+              // Target Primary Cell ID, STRUCTURE (len 1)
+              // > CHOICE Target Cell, STRUCTURE (len 2)
+              // >>  NR Cell, STRUCTURE (len 1))
+              // >>> NR CGI, ELEMENT
+              // >>E-UTRA Cell, STRUCTURE (len 1)
+              // >>>E-UTRA CGI, ELEMENT
+              // Target Primary Cell ID, STRUCTURE (len 1)
+              E2SM_RC_ControlMessage_Format1_Item_t pram1_item1_Target_Primary_Cell = *m_e2SmRcControlMessageFormat1->ranP_List.list.array[0];
+          
+              // > CHOICE Target Cell, STRUCTURE (len 2)
+              RANParameter_STRUCTURE_Item  pram1_item2_CHOICE_Target_Cell = *pram1_item1_Target_Primary_Cell.ranParameter_valueType.choice.ranP_Choice_Structure
+                                ->ranParameter_Structure->sequence_of_ranParameters->list.array[0];
+              // >>  NR Cell, STRUCTURE (len 1))
+              RANParameter_STRUCTURE_Item  pram1_item3_NR_Cell = *pram1_item2_CHOICE_Target_Cell.ranParameter_valueType->choice.ranP_Choice_Structure
+                                ->ranParameter_Structure->sequence_of_ranParameters->list.array[0];
+              // >>> NR CGI, ELEMENT
+              RANParameter_STRUCTURE_Item  pram1_item4_NR_CGI = *pram1_item3_NR_Cell.ranParameter_valueType->choice.ranP_Choice_Structure
+                                ->ranParameter_Structure->sequence_of_ranParameters->list.array[0];
 
-  return ranParameterList;
-}*/
+              BIT_STRING_t NR_CGI = pram1_item4_NR_CGI.ranParameter_valueType->choice.ranP_Choice_ElementFalse->ranParameter_value->choice.valueBitS;
+               
+            uint8_t nr_cgi_value;
+            memcpy(&nr_cgi_value, NR_CGI.buf,NR_CGI.size);          
+            uint16_t targetCellId = nr_cgi_value - 48 ;  //convert from string to decimal
+            return targetCellId ;
+        }    
+
+    // std::vector<RANParameterItem> RicControlMessage::ExtractRANParametersFromControlMessage (
+    //       E2SM_RC_ControlMessage_Format1_t *e2SmRcControlMessageFormat1) 
+    // {
+    //   NS_LOG_DEBUG("***** ExtractRANParametersFromControlMessage 0 ****");
+    //   std::vector<RANParameterItem> ranParameterList;
+    //   NS_LOG_DEBUG("***** ExtractRANParametersFromControlMessage 1 *****");
+
+    // assert(e2SmRcControlMessageFormat1->ranP_List != NULL && "ranParametersList is null");
+    //     // Not implemeted in the FlexRIC side 
+    //   int count = e2SmRcControlMessageFormat1->ranP_List.list.count;
+
+    //   NS_LOG_DEBUG("***** ExtractRANParametersFromControlMessage 2 *****");
+    //   for (int i = 0; i < count; i++)
+    //     {
+    //       RANParameter_STRUCTURE_Item_t *ranParameterItem =
+    //         (RANParameter_STRUCTURE_Item_t*) e2SmRcControlMessageFormat1->ranP_List.list.array[i];
+    //       for (RANParameterItem extractedParameter :
+    //            RANParameterItem::ExtractRANParametersFromRANParameter (ranParameterItem))
+    //         {
+    //           ranParameterList.push_back (extractedParameter);
+    //         }
+    //     }
+
+    //   return ranParameterList;
+    // }
 
 } // namespace ns3

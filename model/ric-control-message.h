@@ -62,7 +62,7 @@ namespace ns3 {
     E2SM_RC_ControlHeader_Format1_t *m_e2SmRcControlHeaderFormat1;
     E2SM_RC_ControlMessage_Format1 *m_e2SmRcControlMessageFormat1;
     std::string GetSecondaryCellIdHO ();
-
+    uint16_t GetTargetCell() const;
   private:
     /**
     * Decodes the RIC Control message .
