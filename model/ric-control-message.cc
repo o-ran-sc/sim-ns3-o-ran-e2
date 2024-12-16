@@ -73,7 +73,7 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
                     }
                     case 1002: {
                         NS_LOG_DEBUG("QoS xApp message");
-                        m_requestType = ControlMessageRequestIdType::QoS;
+                        m_requestType = ControlMessageRequestIdType::Es;
                         break;
                     }
                     case 1024: {

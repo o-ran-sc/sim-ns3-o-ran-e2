@@ -46,7 +46,7 @@ namespace ns3 {
   class RicControlMessage : public SimpleRefCount<RicControlMessage>
   {
   public:
-    enum ControlMessageRequestIdType { HO = 3, QoS = 1002, RC=1024 };
+    enum ControlMessageRequestIdType { HO = 3, Es = 300, RC=1024 };
     RicControlMessage (E2AP_PDU_t *pdu);
     ~RicControlMessage ();
 
