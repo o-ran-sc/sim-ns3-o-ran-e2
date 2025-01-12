@@ -65,27 +65,37 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
             case RICcontrolRequest_IEs__value_PR_RICrequestID: {
                 NS_LOG_DEBUG("[E2SM] RICcontrolRequest_IEs__value_PR_RICrequestID");
                 m_ricRequestId = ie->value.choice.RICrequestID;
-                switch (m_ricRequestId.ricRequestorID) {
-                    case 1001: {
-                        NS_LOG_DEBUG("HO xApp message");
-                        m_requestType = ControlMessageRequestIdType::HO;
+                /*switch (m_ricRequestId.ricRequestorID) {
+                    case 1: {
+                        NS_LOG_DEBUG("Radio Bearer Control");
+                       // m_requestType = ControlMessageRequestIdType::Connected_Mode_Mobility;
+                       m_requestType = ControlMessageServiceStyle::Radio_Bearer_Control;
                         break;
                     }
-                    case 1002: {
-                        NS_LOG_DEBUG("QoS xApp message");
-                        m_requestType = ControlMessageRequestIdType::Es;
+                    case 2: {
+                        NS_LOG_DEBUG("Radio Resource Allocation Control");
+                        //m_requestType = ControlMessageRequestIdType::Es;
+                        m_requestType = ControlMessageServiceStyle::Radio_Resource_Allocation_Control;
                         break;
                     }
-                    case 1024: {
-                        NS_LOG_DEBUG("RC xApp message");
-                        m_requestType = ControlMessageRequestIdType::RC;
+                    case 3: {
+                        NS_LOG_DEBUG("Connected Mode Mobility");
+                        //m_requestType = ControlMessageRequestIdType::RC;
+                        m_requestType = ControlMessageServiceStyle::Connected_Mode_Mobility;
+                        break;
+                    }
+                     case 300: {
+                        NS_LOG_DEBUG("Energy saving state custom control service style");
+                        //m_requestType = ControlMessageRequestIdType::RC;
+                        m_requestType = ControlMessageServiceStyle::Energy_state;
                         break;
                     }
                     default:
-                        NS_LOG_DEBUG("Unhandled ricRequestorID\n");
-                        m_requestType = static_cast<ControlMessageRequestIdType>(m_ricRequestId.ricRequestorID);
+                        NS_LOG_DEBUG("Unhandled Control Service Style\n");
+                        //m_requestType = static_cast<ControlMessageRequestIdType>(m_ricRequestId.ricRequestorID);
+                        m_requestType = static_cast<ControlMessageServiceStyle>(m_ricRequestId.ricRequestorID);
                         break;
-                }
+                }*/
                 break;
             }
             case RICcontrolRequest_IEs__value_PR_RANfunctionID: {
@@ -182,7 +192,8 @@ RicControlMessage::DecodeRicControlMessage(E2AP_PDU_t* pdu)
                             RicControlMessage::ExtractRANParametersFromControlMessage (e2SmRcControlMessageFormat1);
                         
                         NS_LOG_DEBUG("*** DONE ExtractRANParametersFromControlMessage **");
-                        if (m_requestType == ControlMessageRequestIdType::HO)
+                       // if (m_requestType == ControlMessageRequestIdType::HO)
+                        if (m_requestType == ControlMessageServiceStyle::Connected_Mode_Mobility)
                         {
                             // Get and parse the secondaty cell id according to 3GPP TS 38.473, Section 9.2.2.1
                             for (RANParameterItem item : m_valuesExtracted)

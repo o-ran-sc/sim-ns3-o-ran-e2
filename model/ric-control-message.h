@@ -46,12 +46,13 @@ namespace ns3 {
   class RicControlMessage : public SimpleRefCount<RicControlMessage>
   {
   public:
-    enum ControlMessageRequestIdType { HO = 3, Es = 300, RC=1024 };
+    enum ControlMessageServiceStyle {Radio_Bearer_Control=1,Radio_Resource_Allocation_Control=2, Connected_Mode_Mobility = 3, Energy_state = 300};
+    enum Connected_Mode_Mobility_Control_Action_ID {Handover_Control=1,Conditional_Handover_Control=2,DAPS_Handover_Control=3};
     RicControlMessage (E2AP_PDU_t *pdu);
     ~RicControlMessage ();
 
-    ControlMessageRequestIdType m_requestType;
-    
+   
+    ControlMessageServiceStyle m_requestType;
     static std::vector<RANParameterItem> ExtractRANParametersFromControlMessage (
       E2SM_RC_ControlMessage_Format1_t *e2SmRcControlMessageFormat1);
     
