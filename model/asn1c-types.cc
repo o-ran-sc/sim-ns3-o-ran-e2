@@ -856,6 +856,8 @@ MeasurementItem::~MeasurementItem ()
 
   if (m_pmType != NULL)
     ASN_STRUCT_FREE (asn_DEF_MeasurementType, m_pmType);
+
+  // TODO clear m_measurementItem
 }
 
 PM_Info_Item_t *
@@ -877,8 +879,6 @@ RANParameterItem::RANParameterItem (RANParameter_Item_t *ranParameterItem)
 
 RANParameterItem::~RANParameterItem ()
 {
-  if (m_ranParameterItem != NULL)
-    ASN_STRUCT_FREE (asn_DEF_RANParameter_Item, m_ranParameterItem);
 }
 
 std::vector<RANParameterItem>

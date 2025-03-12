@@ -48,7 +48,7 @@ namespace ns3 {
   public:
     enum GlobalE2nodeType { gNB = 0, eNB = 1, ng_eNB = 2, en_gNB = 3 };
 
-    const static int TIMESTAMP_LIMIT_SIZE = 8;
+    int TIMESTAMP_LIMIT_SIZE = 8;
     /**
     * Holds the values to be used to fill the RIC Indication header 
     */

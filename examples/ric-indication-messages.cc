@@ -84,7 +84,6 @@ KpmIndicationHeader::KpmRicIndicationHeaderValues headerValues2;
   Ptr<KpmIndicationHeader> header4 = Create<KpmIndicationHeader> (KpmIndicationHeader::GlobalE2nodeType::en_gNB, headerValues4);
 
   NS_LOG_UNCOND ("----------- End of the Kpm Indication header -----------");
-  return 0;
 
   KpmIndicationMessage::KpmIndicationMessageValues msgValues1;
 

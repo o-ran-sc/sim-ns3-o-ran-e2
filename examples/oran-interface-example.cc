@@ -133,13 +133,26 @@ RicControlMessageCallback (E2AP_PDU_t *ric_ctrl_pdu)
 int 
 main (int argc, char *argv[])
 {
-  LogComponentEnable ("Asn1Types", LOG_LEVEL_ALL);
-  LogComponentEnable ("RicControlMessage", LOG_LEVEL_ALL);
-  e2Term = CreateObject<E2Termination> ("10.244.0.191", 36422, 38472, gnb, plmId);
-  Ptr<KpmFunctionDescription> kpmFd = Create<KpmFunctionDescription> ();
-  e2Term->RegisterKpmCallbackToE2Sm (200, kpmFd, &KpmSubscriptionCallback);    
-  Ptr<RicControlFunctionDescription> rcFd = Create<RicControlFunctionDescription> ();
-  e2Term->RegisterSmCallbackToE2Sm (300, rcFd, &RicControlMessageCallback);
+  LogComponentEnable ("E2Termination", LOG_LEVEL_ALL);
+  // LogComponentEnable ("Asn1Types", LOG_LEVEL_ALL);
+  // LogComponentEnable ("RicControlMessage", LOG_LEVEL_ALL);
+  e2Term = CreateObject<E2Termination> ("10.0.2.10", 36422, 38472, gnb, plmId);
+  e2Term->Start ();
+  bool use = true;
+  if (use){
+
+    Ptr<KpmFunctionDescription> kpmFd = Create<KpmFunctionDescription> ();
+    e2Term->RegisterKpmCallbackToE2Sm (200, kpmFd, &KpmSubscriptionCallback);    
+    Ptr<RicControlFunctionDescription> rcFd = Create<RicControlFunctionDescription> ();
+    e2Term->RegisterSmCallbackToE2Sm (300, rcFd, &RicControlMessageCallback);
+
+    E2Termination::RicSubscriptionRequest_rval_s params;
+    params.actionId = 0;
+    params.instanceId = 1;
+    params.ranFuncionId = 2;
+    params.requestorId = 1;
+    BuildAndSendReportMessage (params);
+  }
 
   return 0;
 }
