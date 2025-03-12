@@ -1,0 +1,8 @@
+Verified+1: ORAN Required GHA <releng+oran.required.gha@linuxfoundation.org>
+Verified+1: Andrea Lacava <thecave003@gmail.com>
+Code-Review+2: Andrea Lacava <thecave003@gmail.com>
+Submitted-by: Andrea Lacava <thecave003@gmail.com>
+Submitted-at: Wed, 12 Mar 2025 17:15:15 +0000
+Reviewed-on: https://gerrit.o-ran-sc.org/r/c/sim/ns3-o-ran-e2/+/14246
+Project: sim/ns3-o-ran-e2
+Branch: refs/heads/master
