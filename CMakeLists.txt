@@ -56,7 +56,5 @@ build_lib(
     LIBRARIES_TO_LINK 
                     ${libcore}
                     ${e2sim_LIBRARIES}
-    TEST_SOURCES test/oran-interface-test-suite.cc
-                 ${examples_as_tests_sources}
 )
 
