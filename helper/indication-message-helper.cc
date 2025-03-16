@@ -78,7 +78,14 @@ IndicationMessageHelper::~IndicationMessageHelper ()
 Ptr<KpmIndicationMessage>
 IndicationMessageHelper::CreateIndicationMessage ()
 {
-  return Create<KpmIndicationMessage> (m_msgValues);
+  return Create<KpmIndicationMessage> (m_msgValues, std::map<std::string, std::any>{});
+}
+
+Ptr<KpmIndicationMessage>
+IndicationMessageHelper::CreateIndicationMessage (const std::map<std::string, std::any>& subcsDetails)
+{
+
+    return Create<KpmIndicationMessage>(m_msgValues,subcsDetails);
 }
 
 } // namespace ns3

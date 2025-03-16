@@ -26,6 +26,7 @@
 #define INDICATION_MESSAGE_HELPER_H
 
 #include <ns3/kpm-indication.h>
+#include <any>
 
 namespace ns3 {
 
@@ -38,6 +39,7 @@ public:
   ~IndicationMessageHelper ();
 
   Ptr<KpmIndicationMessage> CreateIndicationMessage ();
+  Ptr<KpmIndicationMessage>CreateIndicationMessage (const std::map<std::string, std::any>& subsDetails);
 
   bool const &
   IsOffline () const

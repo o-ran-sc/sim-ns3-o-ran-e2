@@ -64,6 +64,10 @@ public:
   void AddCuCpUePmItem (std::string ueImsiComplete, long numDrb, long drbRelAct,
                         Ptr<L3RrcMeasurements> l3RrcMeasurementServing,
                         Ptr<L3RrcMeasurements> l3RrcMeasurementNeigh);
+  // void AddCuCpUePmItem (std::string ueImsiComplete, long numDrb, long drbRelAct,
+  //                       Ptr<L3RrcMeasurements> l3RrcMeasurementServing,
+  //                       Ptr<L3RrcMeasurements> l3RrcMeasurementNeigh, long m_cellId, long imsi,
+  //                         long sinrThisCell,  long convertedSinr);
 
 private:
 };

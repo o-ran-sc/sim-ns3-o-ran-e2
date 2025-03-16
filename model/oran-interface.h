@@ -32,6 +32,10 @@
 // #include <ns3/ric-delete-function-description.h>
 #include <ns3/ric-control-message.h>
 #include "e2sim.hpp"
+#include <map>  
+#include <any>  
+
+typedef std::map<std::string, std::any> Subscription_map;
 
 namespace ns3 {
   
@@ -132,7 +136,7 @@ namespace ns3 {
       * \return RIC subscription request parameters
       */
       RicSubscriptionRequest_rval_s ProcessRicSubscriptionRequest (E2AP_PDU_t* sub_req_pdu);
-
+      
       /**
       * Sends an E2 message to the RIC
       * This function encodes and sends an E2 message to the RIC
@@ -140,7 +144,14 @@ namespace ns3 {
       * \param pdu the PDU of the message
       */
       void SendE2Message (E2AP_PDU* pdu);   
-
+      void StoreSubscriptionDetail(const std::string& key, const std::any& value);
+     template<typename T>
+    T GetSubscriptionDetail(const std::string& key, const T& defaultValue) const;
+      void PrintSubscriptionDetails() const;
+      void DecodeLabelInfo(MeasurementLabel_t* label);
+      void DecodeRICEventTriggerDefinition(const uint8_t* buffer, size_t size);
+      void DecodeRICActionDefinition(const uint8_t* buffer, size_t size);
+    const Subscription_map& SubscriptionMapRef() const;
     private:
       /**
       * Run the e2sim main loop.
@@ -164,6 +175,7 @@ namespace ns3 {
       uint16_t m_clientPort; //!< local bind port
       std::string m_gnbId; //!< GNB id
       std::string m_plmnId; //!< PLMN Id
+      Subscription_map subs_details; 
   };
 }
 

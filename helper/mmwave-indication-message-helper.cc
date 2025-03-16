@@ -20,6 +20,8 @@
  * Author: Andrea Lacava <thecave003@gmail.com>
  *		   Tommaso Zugno <tommasozugno@gmail.com>
  *		   Michele Polese <michele.polese@gmail.com>
+ *       Mina Yonan <mina.awadallah@orange.com>
+ *       Mostafa Ashraf <mostafa.ashraf.ext@orange.com>
  */
 
 #include <ns3/mmwave-indication-message-helper.h>
@@ -181,7 +183,10 @@ MmWaveIndicationMessageHelper::AddCuCpUePmItem (std::string ueImsiComplete, long
       ueVal->AddItem<long> ("DRB.RelActNbr.5QI.UEID", drbRelAct); // not modeled in the simulator
     }
 
+  // L3servingSINR3gpp_cell_XX
   ueVal->AddItem<Ptr<L3RrcMeasurements>> ("HO.SrcCellQual.RS-SINR.UEID", l3RrcMeasurementServing);
+  // L3servingSINR3gpp_cell_XX_UEID_XX
+  // L3neighSINR_cell_XX
   ueVal->AddItem<Ptr<L3RrcMeasurements>> ("HO.TrgtCellQual.RS-SINR.UEID", l3RrcMeasurementNeigh);
 
   m_msgValues.m_ueIndications.insert (ueVal);
