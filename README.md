@@ -22,6 +22,8 @@ Additional material:
   - https://github.com/wineslab/ns-o-ran-xapp-rc 
 - Gymnasium Environment wrapper for ns-O-RAN https://github.com/wineslab/ns-o-ran-gym-environment
 
+We welcome contributions through pull requests. Please contact the authors to submit your contribution.
+
 ## References
 
 More information can be found in the technical paper:
@@ -41,4 +43,6 @@ The ns3-o-ran-e2 module is the result of the development effort carried out by d
 - Tommaso Zugno, University of Padova
 - Rajarajan Sivaraj and team, Mavenir
 
-We welcome contributions through pull requests.
+## Acknowledgements
+
+This work was partially supported by Mavenir, by Sapienza, University of Rome under Grant AR1221816B3DC365 and by the U.S. National Science Foundation under Grants CNS-1923789 and CNS-2112471.
