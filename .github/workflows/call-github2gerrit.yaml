@@ -1,0 +1,90 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 The Linux Foundation
+
+name: "GitHub2Gerrit"
+
+# Thin caller for the github2gerrit reusable workflow. All processing
+# lives in the canonical reusable workflow; this caller only wires up
+# the triggers, forwards the Gerrit-event dispatch context, and passes
+# the repository authentication inputs/secret.
+
+# yamllint disable-line rule:truthy
+on:
+  # Mirror new/updated GitHub pull requests to Gerrit.
+  # github2gerrit fundamentally requires pull_request_target so the
+  # mirror job can read repository secrets (the Gerrit SSH key) and
+  # write PR comments/labels. Fork PR code is never checked out or
+  # executed here, so the usual pull_request_target risk is avoided.
+  pull_request_target:  # zizmor: ignore[dangerous-triggers]
+    types: [opened, reopened, edited, synchronize, closed]
+    branches:
+      - main
+      - master
+  # Close GitHub PRs whose Gerrit changes have merged
+  push:
+    branches:
+      - main
+      - master
+  # Manual runs and Gerrit-event dispatches (gerrit_to_platform)
+  workflow_dispatch:
+    inputs:
+      PR_NUMBER:
+        description: "PR number to process; 0 processes all open"
+        required: false
+        default: "0"
+        type: string
+      GERRIT_CHANGE_URL:
+        description: "Gerrit change URL from a Gerrit event dispatch"
+        required: false
+        type: string
+      GERRIT_EVENT_TYPE:
+        description: "Gerrit event type (e.g. change-merged)"
+        required: false
+        type: string
+      GERRIT_BRANCH:
+        description: "Target branch override from a Gerrit event dispatch"
+        required: false
+        type: string
+      ALLOW_DUPLICATES:
+        description: "Allow submitting duplicate changes without error"
+        required: false
+        default: true
+        type: boolean
+      PRESERVE_GITHUB_PRS:
+        description: "Do not close GitHub PRs after pushing to Gerrit"
+        required: false
+        default: true
+        type: boolean
+
+# Default to no permissions; the job grants only what it needs.
+permissions: {}
+
+jobs:
+  github2gerrit:
+    permissions:
+      contents: read  # read repository content for the mirror job
+      pull-requests: write  # comment on and close mirrored PRs
+      issues: write  # manage PR/issue metadata during mirroring
+    # yamllint disable-line rule:line-length
+    uses: lfreleng-actions/github2gerrit-action/.github/workflows/github2gerrit.yaml@bb821bec1b2846cd3ab51bac095495bcf9c9abc6  # v2.4.4
+    with:
+      USE_PR_AS_COMMIT: true
+      GERRIT_KNOWN_HOSTS: ${{ vars.GERRIT_KNOWN_HOSTS }}
+      GERRIT_SSH_USER_G2G: ${{ vars.GERRIT_SSH_USER_G2G }}
+      GERRIT_SSH_USER_G2G_EMAIL: ${{ vars.GERRIT_SSH_USER_G2G_EMAIL }}
+      # No .gitreview here, so name the Gerrit target explicitly rather
+      # than let the tool guess it from the hyphenated repository name
+      GERRIT_SERVER: ${{ vars.GERRIT_SERVER }}
+      GERRIT_PROJECT: "sim/ns3-o-ran-e2"
+      ISSUE_ID_LOOKUP_JSON: ${{ vars.ISSUE_ID_LOOKUP_JSON || '[]' }}
+      PR_NUMBER: ${{ inputs.PR_NUMBER || '0' }}
+      GERRIT_CHANGE_URL: ${{ inputs.GERRIT_CHANGE_URL || '' }}
+      GERRIT_EVENT_TYPE: ${{ inputs.GERRIT_EVENT_TYPE || '' }}
+      GERRIT_BRANCH: ${{ inputs.GERRIT_BRANCH || '' }}
+      # yamllint disable-line rule:line-length
+      ALLOW_DUPLICATES: ${{ github.event_name != 'workflow_dispatch' || inputs.ALLOW_DUPLICATES }}
+      # yamllint disable-line rule:line-length
+      PRESERVE_GITHUB_PRS: ${{ github.event_name != 'workflow_dispatch' || inputs.PRESERVE_GITHUB_PRS }}
+    secrets:
+      GERRIT_SSH_PRIVKEY_G2G: ${{ secrets.GERRIT_SSH_PRIVKEY_G2G }}
